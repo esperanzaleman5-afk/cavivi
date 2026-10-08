@@ -285,6 +285,7 @@
   <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
   <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -1316,94 +1317,174 @@
       pdfEditorDropzone.classList.remove('dragover');
     });
     pdfEditorDropzone.addEventListener('drop', (event) => selectPdfEditorFiles(event.dataTransfer.files));
-    pdfEditorForm.addEventListener('submit', async (event) => {
+   pdfEditorForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const action = pdfEditorAction.value;
+
+      // 1. Validaciones iniciales
       if (!pdfEditorFiles.length || (action === 'merge' && pdfEditorFiles.length < 2)) {
         showPdfEditorResult(action === 'merge' ? 'Selecciona al menos dos PDF.' : 'Selecciona un PDF antes de continuar.', true);
         return;
       }
       if (action === 'reorder' && pdfEditorPages.length === 0) {
-        showPdfEditorResult('Indica el nuevo orden de todas las páginas.', true);
-        return;
+        showPdfEditorResult('Indica el nuevo orden de todas las páginas.', true); return;
       }
       if (action === 'split' && !document.querySelector('#pdf-editor-split-all').checked && getPdfEditorSplitRanges().length === 0) {
-        showPdfEditorResult('Añade al menos un rango de páginas.', true);
-        return;
+        showPdfEditorResult('Añade al menos un rango de páginas.', true); return;
       }
       if (action === 'remove' && pdfRemovedPages.size === 0) {
-        showPdfEditorResult('Marca al menos una página con una X antes de continuar.', true);
-        return;
+        showPdfEditorResult('Marca al menos una página con una X antes de continuar.', true); return;
       }
-      if (action === 'unprotect' && !document.querySelector('#pdf-editor-password').value) {
-        showPdfEditorResult('Escribe la contraseña actual del PDF.', true);
-        return;
-      }
-      if (action === 'protect' && document.querySelector('#pdf-editor-new-password').value.length < 4) {
-        showPdfEditorResult('La nueva contraseña debe tener al menos 4 caracteres.', true);
+      if (action === 'compress' || action === 'protect' || action === 'unprotect') {
+        showPdfEditorResult('Esta función requiere un servidor backend y no está disponible en la versión estática (GitHub Pages).', true);
         return;
       }
 
       const originalLabel = pdfEditorSubmit.querySelector('span:first-child').textContent;
-      const body = new FormData();
-      if (action === 'merge') {
-        pdfEditorFiles.forEach((file) => body.append('archivos', file, file.name));
-        if (pdfEditorPages.length) body.append('page_order', JSON.stringify(pdfEditorPages.map((page) => ({ fileIndex: page.fileIndex, pageNumber: page.pageNumber }))));
-      } else {
-        body.append('archivo_pdf', pdfEditorFiles[0], pdfEditorFiles[0].name);
-      }
-      const sourcePassword = document.querySelector('#pdf-editor-password').value;
-      if (sourcePassword) body.append('password', sourcePassword);
-      if (action === 'reorder') body.append('orden', document.querySelector('#pdf-editor-order').value.trim());
-      if (action === 'number') {
-        body.append('position', document.querySelector('#pdf-editor-position').value);
-        body.append('start', document.querySelector('#pdf-editor-start').value || '1');
-        body.append('format', document.querySelector('#pdf-editor-number-format').value.trim());
-        body.append('font', document.querySelector('#pdf-editor-font').value);
-        body.append('size', document.querySelector('#pdf-editor-font-size').value);
-        body.append('color', document.querySelector('#pdf-editor-font-color').value);
-      }
-      if (action === 'split') {
-        const splitAll = document.querySelector('#pdf-editor-split-all').checked;
-        body.append('mode', splitAll ? 'all' : 'range');
-        body.append('pages', splitAll ? '' : getPdfEditorSplitRanges().join(','));
-      }
-      if (action === 'rotate') {
-        body.append('pages', document.querySelector('#pdf-editor-rotate-pages').value.trim() || 'all');
-        body.append('angle', document.querySelector('#pdf-editor-angle').value);
-      }
-      if (action === 'remove') body.append('pages', [...pdfRemovedPages].map((key) => Number(key.split(':')[1])).sort((a, b) => a - b).join(','));
-      if (action === 'protect') {
-        body.append('new_password', document.querySelector('#pdf-editor-new-password').value);
-        body.append('owner_password', document.querySelector('#pdf-editor-owner-password').value);
-      }
-
       pdfEditorSubmit.disabled = true;
       pdfEditorSubmit.querySelector('span:first-child').textContent = 'Procesando PDF…';
-      showPdfEditorResult('Procesando en CAVIVI…');
+      showPdfEditorResult('Procesando localmente en tu navegador…');
+
       try {
-        const response = await fetch(pdfEditorEndpoints[action], { method: 'POST', body });
-        if (!response.ok) {
-          let message = 'No se pudo completar la operación.';
-          try { message = (await response.json()).error || message; } catch {}
-          throw new Error(message);
+        const { PDFDocument, rgb, degrees, StandardFonts } = window.PDFLib;
+        let finalPdfBytes;
+        let filename = 'documento_editado.pdf';
+
+        if (action === 'merge') {
+          // Lógica para UNIR PDF (ILovePDF style por documento)
+          const mergedPdf = await PDFDocument.create();
+          const documentOrder = [...new Set(pdfEditorPages.map((page) => page.fileIndex))];
+          for (const fileIndex of documentOrder) {
+            const file = pdfEditorFiles[fileIndex];
+            const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
+            const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+            copiedPages.forEach((p) => mergedPdf.addPage(p));
+          }
+          finalPdfBytes = await mergedPdf.save();
+          filename = 'pdfs_unidos.pdf';
+
+        } else {
+          // Lógica para herramientas de UN SOLO PDF
+          const file = pdfEditorFiles[0];
+          const sourcePdfBytes = await file.arrayBuffer();
+          filename = `editado_${file.name}`;
+
+          if (action === 'remove') {
+            const pdfDoc = await PDFDocument.load(sourcePdfBytes);
+            // Ordenar de mayor a menor para que los índices no cambien al eliminar
+            const pagesToRemove = [...pdfRemovedPages]
+              .map((key) => Number(key.split(':')[1]) - 1)
+              .sort((a, b) => b - a);
+            pagesToRemove.forEach(index => pdfDoc.removePage(index));
+            finalPdfBytes = await pdfDoc.save();
+
+          } else if (action === 'rotate') {
+            const pdfDoc = await PDFDocument.load(sourcePdfBytes);
+            const angle = parseInt(document.querySelector('#pdf-editor-angle').value);
+            const rotatePages = document.querySelector('#pdf-editor-rotate-pages').value.trim();
+            const selectedPages = parsePreviewPageSelection(rotatePages || 'all', pdfDoc.getPageCount());
+
+            selectedPages.forEach(pageNum => {
+              const page = pdfDoc.getPage(pageNum - 1);
+              page.setRotation(degrees(page.getRotation().angle + angle));
+            });
+            finalPdfBytes = await pdfDoc.save();
+
+          } else if (action === 'reorder') {
+            const pdfDoc = await PDFDocument.load(sourcePdfBytes);
+            const newPdf = await PDFDocument.create();
+            for (const pageInfo of pdfEditorPages) {
+              const [copiedPage] = await newPdf.copyPages(pdfDoc, [pageInfo.pageNumber - 1]);
+              newPdf.addPage(copiedPage);
+            }
+            finalPdfBytes = await newPdf.save();
+
+          } else if (action === 'number') {
+            const pdfDoc = await PDFDocument.load(sourcePdfBytes);
+            const fontName = document.querySelector('#pdf-editor-font').value;
+            let standardFont = StandardFonts.Helvetica;
+            if (fontName.includes('Times')) standardFont = fontName.includes('Bold') ? StandardFonts.TimesRomanBold : StandardFonts.TimesRoman;
+            if (fontName.includes('Courier')) standardFont = fontName.includes('Bold') ? StandardFonts.CourierBold : StandardFonts.Courier;
+            if (fontName === 'Helvetica-Bold') standardFont = StandardFonts.HelveticaBold;
+
+            const font = await pdfDoc.embedFont(standardFont);
+            const size = parseInt(document.querySelector('#pdf-editor-font-size').value) || 12;
+            const hexColor = document.querySelector('#pdf-editor-font-color').value;
+            const r = parseInt(hexColor.substr(1,2), 16)/255;
+            const g = parseInt(hexColor.substr(3,2), 16)/255;
+            const b = parseInt(hexColor.substr(5,2), 16)/255;
+
+            const format = document.querySelector('#pdf-editor-number-format').value.trim();
+            const position = document.querySelector('#pdf-editor-position').value;
+            const startNum = parseInt(document.querySelector('#pdf-editor-start').value) || 1;
+            const pageCount = pdfDoc.getPageCount();
+
+            for (let i = 0; i < pageCount; i++) {
+              const page = pdfDoc.getPage(i);
+              const { width, height } = page.getSize();
+              const text = format.replace('{n}', startNum + i).replace('{total}', pageCount);
+              const textWidth = font.widthOfTextAtSize(text, size);
+              const margin = 30;
+
+              let x = margin, y = margin;
+              if (position.includes('center') || position.includes('middle')) x = (width - textWidth) / 2;
+              if (position.includes('right')) x = width - textWidth - margin;
+              if (position.includes('top')) y = height - margin - size;
+              if (position.includes('middle')) y = (height - size) / 2;
+
+              page.drawText(text, { x, y, size, font, color: rgb(r, g, b) });
+            }
+            finalPdfBytes = await pdfDoc.save();
+
+          } else if (action === 'split') {
+            const splitAll = document.querySelector('#pdf-editor-split-all').checked;
+            const pdfDoc = await PDFDocument.load(sourcePdfBytes);
+            const zip = new window.JSZip();
+            const pageCount = pdfDoc.getPageCount();
+
+            if (splitAll) {
+              for (let i = 0; i < pageCount; i++) {
+                const newPdf = await PDFDocument.create();
+                const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
+                newPdf.addPage(copiedPage);
+                zip.file(`pagina_${i+1}.pdf`, await newPdf.save());
+              }
+            } else {
+              const ranges = getPdfEditorRangeGroups();
+              let count = 1;
+              for (const group of ranges) {
+                const newPdf = await PDFDocument.create();
+                const indices = [...group.pages].filter(p => p >= 1 && p <= pageCount).map(p => p - 1);
+                const copiedPages = await newPdf.copyPages(pdfDoc, indices);
+                copiedPages.forEach((p) => newPdf.addPage(p));
+                zip.file(`rango_${count++}.pdf`, await newPdf.save());
+              }
+            }
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            downloadBlob(zipBlob, `dividido_${file.name}.zip`);
+            addHistory(`dividido_${file.name}.zip`, 'PDF Dividido');
+            showPdfEditorResult(`PDF dividido y descargado en ZIP correctamente.`);
+            return; // Termina aquí porque ya se ha descargado el ZIP
+          }
         }
-        const blob = await response.blob();
-        const disposition = response.headers.get('Content-Disposition') || '';
-        const filenameMatch = disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
-        const filename = filenameMatch ? decodeURIComponent(filenameMatch[1] || filenameMatch[2]) : 'pdf_editado.pdf';
-        downloadBlob(blob, filename);
-        addHistory(filename, action === 'merge' ? 'PDF unidos' : 'PDF editado');
-        showPdfEditorResult(`Operación completada. Descargando ${filename}.`);
+
+        // Descarga el archivo PDF final procesado
+        if (finalPdfBytes) {
+          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+          downloadBlob(blob, filename);
+          addHistory(filename, action === 'merge' ? 'PDF unidos' : 'PDF editado');
+          showPdfEditorResult(`Operación completada. Descargando ${filename}.`);
+        }
+
       } catch (error) {
-        showPdfEditorResult(error.message || 'No se pudo conectar con CAVIVI.', true);
+        console.error(error);
+        showPdfEditorResult(error.message || 'Error al procesar el PDF.', true);
       } finally {
-        pdfEditorSubmit.disabled = pdfEditorFiles.length === 0 || (pdfEditorAction.value === 'merge' && pdfEditorFiles.length < 2);
+        pdfEditorSubmit.disabled = false;
         pdfEditorSubmit.querySelector('span:first-child').textContent = originalLabel;
       }
     });
     updatePdfEditorForm();
-
     const qrInput = document.querySelector('#qr-content');
     const qrPaper = document.querySelector('#qr-paper');
     const qrDownload = document.querySelector('#download-qr');
