@@ -1,0 +1,1745 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eff8f5">
+  <title>CAVIVI — herramientas para tus archivos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0">
+  <script>tailwind = { config: { corePlugins: { preflight: false } } };</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172c2d;
+      --muted: #758584;
+      --line: #dce8e4;
+      --paper: #f4f8f5;
+      --white: #fff;
+      --cyan: #a8eee4;
+      --cyan-strong: #26b9a9;
+      --cyan-deep: #147f77;
+      --coral: #f3a287;
+      --yellow: #f2d779;
+      --shadow: 0 18px 45px rgba(29, 74, 68, .08);
+      font-family: 'DM Sans', sans-serif;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--paper); color: var(--ink); }
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+    .app-shell { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar { position: sticky; top: 0; display: flex; flex-direction: column; height: 100vh; padding: 27px 17px 18px; background: #e8f3ef; border-right: 1px solid #d7e7e1; }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 11px; color: var(--ink); text-decoration: none; }
+    .brand-mark { display: grid; place-items: center; width: 35px; height: 35px; border-radius: 11px; background: var(--cyan-strong); color: #fff; transform: rotate(-5deg); }
+    .brand-mark .material-symbols-rounded { font-size: 22px; }
+    .brand-name { font: 800 19px 'Manrope', sans-serif; letter-spacing: -.7px; }
+    .brand-name span { color: var(--cyan-deep); }
+    .nav-label { margin: 42px 11px 11px; color: #93a29e; font-size: 10px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; }
+    .nav-list { display: grid; gap: 5px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 45px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #647572; text-align: left; cursor: pointer; transition: background .18s, color .18s, transform .18s; }
+    .nav-item:hover { background: rgba(255,255,255,.65); color: var(--ink); }
+    .nav-item:active { transform: scale(.985); }
+    .nav-item.active { background: #fff; color: var(--ink); font-weight: 700; box-shadow: 0 3px 12px rgba(30, 80, 71, .06); }
+    .nav-item.active .material-symbols-rounded { color: var(--cyan-deep); }
+    .material-symbols-rounded { font-size: 20px; line-height: 1; font-variation-settings: 'FILL' 0, 'wght' 450; }
+    .sidebar-bottom { margin-top: auto; }
+    .privacy-note { display: flex; gap: 10px; align-items: flex-start; margin: 12px 5px 16px; padding: 14px 12px; border: 1px solid #d6e7e1; border-radius: 8px; background: rgba(255,255,255,.52); }
+    .privacy-note .material-symbols-rounded { margin-top: 1px; color: var(--cyan-deep); font-size: 18px; }
+    .privacy-note p { margin: 0; color: #687c77; font-size: 11px; line-height: 1.5; }
+    .account { display: flex; align-items: center; gap: 10px; padding: 13px 10px 0; border-top: 1px solid #d6e5df; }
+    .avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--coral); color: #50392f; font: 700 12px 'Manrope', sans-serif; }
+    .account-name { font-size: 12px; font-weight: 700; }
+    .account-plan { margin-top: 2px; color: #81908c; font-size: 10px; }
+    main { min-width: 0; }
+    .topbar { height: 72px; display: flex; align-items: center; justify-content: flex-end; gap: 20px; padding: 0 5.5%; border-bottom: 1px solid #e4ece8; }
+    .topbar-status { display: flex; align-items: center; gap: 7px; color: #798984; font-size: 11px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #55ba84; box-shadow: 0 0 0 3px #def1e5; }
+    .topbar-date { color: #8a9793; font-size: 11px; }
+    .content { width: min(1120px, 100%); margin: 0 auto; padding: 42px 5.5% 64px; }
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; animation: rise .5s both; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--cyan-deep); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+    .eyebrow::before { display: block; width: 18px; height: 2px; background: var(--coral); content: ''; }
+    h1 { margin: 0; font: 700 clamp(30px, 3.4vw, 43px)/1.12 'Manrope', sans-serif; letter-spacing: -1.8px; }
+    .heading-note { max-width: 245px; margin: 0 0 3px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .page-view { display: none; animation: rise .42s both; }
+    .page-view.active { display: block; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(265px, .85fr); overflow: hidden; border: 1px solid #deebe6; border-radius: 10px; background: var(--white); box-shadow: var(--shadow); }
+    .upload-panel { min-height: 465px; padding: 25px 27px 23px; }
+    .panel-topline { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 25px; }
+    .panel-kicker { color: #7d8d88; font-size: 11px; font-weight: 600; }
+    .file-limit { display: flex; align-items: center; gap: 5px; color: #96a29f; font-size: 10px; white-space: nowrap; }
+    .file-limit .material-symbols-rounded { font-size: 15px; }
+    .dropzone { min-height: 260px; display: grid; place-items: center; padding: 26px; border: 1px dashed #a9cec5; border-radius: 8px; background: linear-gradient(135deg, #f3fbf8 0%, #f8fbf7 62%, #fff8f2 100%); text-align: center; transition: border-color .2s, background .2s; }
+    .dropzone.dragover { border-color: var(--cyan-strong); background: #e5f8f4; }
+    .upload-icon { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 15px; border-radius: 16px 16px 16px 5px; background: var(--cyan); color: #147f77; transform: rotate(-4deg); }
+    .upload-icon .material-symbols-rounded { font-size: 27px; transform: rotate(4deg); }
+    .dropzone h2 { margin: 0; font: 700 17px 'Manrope', sans-serif; letter-spacing: -.35px; }
+    .dropzone p { margin: 7px 0 17px; color: #83918d; font-size: 11px; }
+    .primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 39px; padding: 0 15px; border: 0; border-radius: 6px; background: var(--ink); color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; transition: background .2s, transform .2s; }
+    .primary-button:hover { background: var(--cyan-deep); transform: translateY(-1px); }
+    .primary-button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .primary-button .material-symbols-rounded { font-size: 17px; }
+    .format-caption { margin: 20px 0 10px; color: #879590; font-size: 10px; font-weight: 600; }
+    .format-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .format-pill { display: inline-flex; align-items: center; gap: 5px; min-height: 27px; padding: 0 9px; border: 1px solid #e3ece8; border-radius: 5px; color: #74837f; font-size: 10px; }
+    .format-pill .material-symbols-rounded { color: var(--cyan-deep); font-size: 14px; }
+    .file-row { display: none; align-items: center; gap: 12px; min-height: 66px; margin-top: 16px; padding: 10px 12px; border: 1px solid #e3ece8; border-radius: 7px; background: #fbfdfb; }
+    .file-row.visible { display: flex; }
+    .file-type-icon { display: grid; place-items: center; flex: 0 0 36px; height: 38px; border-radius: 6px; background: #e6f6f1; color: var(--cyan-deep); }
+    .file-info { min-width: 0; flex: 1; }
+    .file-name { overflow: hidden; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .file-size { margin-top: 4px; color: #92a09b; font-size: 10px; }
+    .icon-button { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: #889691; cursor: pointer; }
+    .icon-button:hover { background: #edf5f2; color: var(--ink); }
+    .settings-panel { padding: 25px 23px; border-left: 1px solid #e5eeea; background: #fbfdfb; }
+    .settings-title { margin: 0 0 6px; font: 700 14px 'Manrope', sans-serif; }
+    .settings-subtitle { margin: 0 0 24px; color: #91a09a; font-size: 10px; }
+    .field-label { display: block; margin: 0 0 9px; color: #75847f; font-size: 10px; font-weight: 700; }
+    .select-wrap { position: relative; margin-bottom: 22px; }
+    .select-wrap select { width: 100%; height: 42px; padding: 0 35px 0 12px; appearance: none; border: 1px solid #dce8e3; border-radius: 6px; outline: none; background: white; color: var(--ink); font-size: 11px; cursor: pointer; }
+    .select-wrap select:focus, textarea:focus, input:focus { border-color: var(--cyan-strong); box-shadow: 0 0 0 3px rgba(38,185,169,.12); outline: none; }
+    .select-wrap .material-symbols-rounded { position: absolute; top: 11px; right: 11px; color: #81918b; pointer-events: none; }
+    .option-list { display: grid; gap: 7px; margin-bottom: 23px; }
+    .option { display: flex; align-items: center; gap: 9px; min-height: 39px; padding: 0 10px; border: 1px solid #e2ebe7; border-radius: 6px; background: #fff; color: #64746f; font-size: 10px; cursor: pointer; transition: border-color .18s, background .18s; }
+    .option:hover { border-color: #b9ddd4; }
+    .option.selected { border-color: #8bd7cb; background: #effaf7; color: #226d65; font-weight: 700; }
+    .radio-mark { display: grid; place-items: center; width: 15px; height: 15px; border: 1px solid #cbd9d3; border-radius: 50%; }
+    .option.selected .radio-mark { border: 4px solid var(--cyan-strong); }
+    .option-note { margin-left: auto; color: #9aa7a2; font-size: 9px; }
+    .convert-button { width: 100%; min-height: 43px; justify-content: space-between; padding: 0 13px; background: var(--cyan-strong); color: #093b39; }
+    .convert-button:hover { background: #50d0bf; }
+    .convert-button:disabled { color: #234a46; }
+    .privacy-line { display: flex; align-items: center; justify-content: center; gap: 5px; margin: 12px 0 0; color: #99a6a1; font-size: 9px; }
+    .privacy-line .material-symbols-rounded { font-size: 13px; }
+    .result-banner { display: none; align-items: center; gap: 9px; margin-top: 13px; padding: 10px; border-radius: 6px; background: #e9f7ee; color: #397650; font-size: 10px; line-height: 1.45; }
+    .result-banner.visible { display: flex; }
+    .result-banner.error { background: #fff0e9; color: #9e5537; }
+    .result-banner .material-symbols-rounded { flex: 0 0 auto; font-size: 17px; }
+    .below-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; margin-top: 20px; }
+    .tip-strip, .recent-strip { display: flex; align-items: center; gap: 13px; min-height: 76px; padding: 14px 16px; border-top: 1px solid #dbe8e3; }
+    .below-grid.textos-espacio-archivos { display: flex; flex-direction: column; gap: 15px; line-height: 1.6; position: relative; margin-top: 20px; }
+    .textos-espacio-archivos > div { width: 100%; min-width: 0; }
+    .textos-espacio-archivos .tip-text, .textos-espacio-archivos .recent-text { min-width: 0; position: relative; line-height: 1.6; overflow-wrap: anywhere; }
+    .ai-subsection { position: relative; margin-top: 30px; padding-top: 20px; border-top: 2px solid #eaeaea; }
+    .pdf-preview-board { margin: 14px 0 18px; padding: 14px; border: 1px solid #deebe6; border-radius: 8px; background: #f8fbf9; }
+    .pdf-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 11px; margin-top: 12px; }
+    .pdf-page-card { min-width: 0; padding: 8px; border: 1px solid #dce8e3; border-radius: 7px; background: white; cursor: grab; transition: border-color .16s, box-shadow .16s, opacity .16s; }
+    .pdf-page-card:active { cursor: grabbing; }
+    .pdf-page-card.dragging { opacity: .4; }
+    .pdf-page-card.drop-target { border-color: var(--cyan-strong); box-shadow: 0 0 0 2px rgba(38,185,169,.15); }
+    .pdf-page-frame { display: grid; place-items: center; overflow: hidden; aspect-ratio: .72; background: #edf3f0; }
+    .pdf-page-frame img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: center; transition: transform .18s; }
+    .pdf-page-meta { display: grid; gap: 3px; padding-top: 7px; }
+    .pdf-page-meta strong { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .pdf-page-meta span { color: #899791; font-size: 9px; }
+    .pdf-preview-status { min-height: 16px; color: #71817b; font-size: 10px; line-height: 1.5; }
+    .pdf-order-note { margin: 8px 0 0; color: #71817b; font-size: 10px; line-height: 1.5; }
+    .pdf-editor-topbar { position: sticky; top: 72px; z-index: 3; display: flex; gap: 7px; overflow-x: auto; margin: -8px 0 18px; padding: 10px; border: 1px solid #dce8e3; border-radius: 8px; background: rgba(255,255,255,.96); box-shadow: 0 7px 18px rgba(29,74,68,.06); }
+    .pdf-tool-tab { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; min-height: 36px; padding: 0 11px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #687974; font-size: 10px; font-weight: 600; cursor: pointer; }
+    .pdf-tool-tab:hover, .pdf-tool-tab.active { border-color: #bfe5dc; background: #eff9f6; color: #176c63; }
+    .pdf-tool-tab .material-symbols-rounded { font-size: 17px; }
+    .pdf-editor-layout { display: grid; grid-template-columns: minmax(0,1fr) 330px; min-width: 0; overflow: visible; border: 1px solid #deebe6; border-radius: 10px; background: #fff; box-shadow: var(--shadow); }
+    .pdf-editor-main { min-width: 0; padding: 24px; }
+    .pdf-editor-sidebar { position: sticky; top: 122px; align-self: start; max-height: calc(100vh - 138px); overflow: auto; padding: 22px; border-left: 1px solid #e5eeea; border-radius: 0 10px 10px 0; background: #fbfdfb; }
+    .pdf-editor-sidebar .field-label { margin-top: 13px; }
+    .pdf-position-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin: 8px 0 14px; }
+    .pdf-position-grid button { aspect-ratio: 1.2; border: 1px solid #dce8e3; border-radius: 5px; background: #fff; color: #657671; font-size: 17px; cursor: pointer; }
+    .pdf-position-grid button:hover, .pdf-position-grid button.selected { border-color: #67c7b7; background: #e7f8f4; color: #147f77; }
+    .pdf-range-list { display: grid; gap: 6px; }
+    .pdf-range-row { display: flex; align-items: flex-start; gap: 5px; }
+    .pdf-range-row .qr-input { min-width: 0; margin-bottom: 0; }
+    .pdf-editor-main-title { margin: 0; font: 700 17px 'Manrope', sans-serif; }
+    .pdf-editor-main-note { margin: 5px 0 0; color: #83918d; font-size: 11px; line-height: 1.5; }
+    .pdf-editor-toolbar-action { flex: 0 0 auto; }
+    .pdf-page-card { position: relative; }
+    .pdf-page-card.page-removed { border-color: #dc7777; box-shadow: inset 0 0 0 2px rgba(199,57,57,.16); }
+    .pdf-page-card.page-removed::after { position: absolute; inset: 8px 8px 38px; display: grid; place-items: center; border-radius: 4px; background: rgba(107,28,28,.58); color: #fff; content: '×'; font: 700 54px/1 'DM Sans', sans-serif; pointer-events: none; }
+    .pdf-page-card.range-a { border-color: #6f9cd0; background: #f4f8ff; }
+    .pdf-page-card.range-b { border-color: #d1a452; background: #fffaf0; }
+    .pdf-page-card.range-c { border-color: #58a790; background: #f0fbf7; }
+    .pdf-page-card.range-d { border-color: #ad83bd; background: #faf5fc; }
+    .pdf-document-card .pdf-page-frame { aspect-ratio: 1.05; }
+    .pdf-document-card .pdf-page-frame img { max-height: 100%; }
+    .tip-icon { display: grid; place-items: center; flex: 0 0 34px; height: 34px; border-radius: 50%; background: #f8e8df; color: #ac7058; }
+    .tip-text strong, .recent-text strong { display: block; margin-bottom: 3px; font-size: 10px; }
+    .tip-text span, .recent-text span { color: #899791; font-size: 10px; line-height: 1.5; }
+    .recent-strip { border-left: 1px solid #dbe8e3; }
+    .recent-icon { display: grid; place-items: center; flex: 0 0 34px; height: 34px; border-radius: 9px; background: #e6f5ef; color: var(--cyan-deep); }
+    .text-view, .qr-view, .history-view { padding-bottom: 24px; }
+    .tool-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(250px, .7fr); border: 1px solid #deebe6; border-radius: 10px; background: #fff; box-shadow: var(--shadow); overflow: hidden; }
+    .tool-main { padding: 26px; }
+    .tool-aside { padding: 27px 23px; border-left: 1px solid #e5eeea; background: #fbfdfb; }
+    .tool-main h2 { margin: 0 0 7px; font: 700 17px 'Manrope', sans-serif; }
+    .tool-main > p { margin: 0 0 21px; color: #879590; font-size: 11px; }
+    .text-area { width: 100%; min-height: 280px; resize: vertical; padding: 15px; border: 1px solid #dce8e3; border-radius: 7px; background: #fcfdfc; color: var(--ink); font-size: 12px; line-height: 1.65; }
+    .text-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+    .soft-button { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px; border: 1px solid #dce8e3; border-radius: 5px; background: white; color: #536560; font-size: 10px; font-weight: 600; cursor: pointer; }
+    .soft-button:hover { border-color: #9fd5ca; color: var(--cyan-deep); }
+    .soft-button .material-symbols-rounded { font-size: 16px; }
+    .word-count { margin-left: auto; color: #8a9893; font-size: 10px; }
+    .stats-title { margin: 0 0 16px; color: #879590; font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+    .stat-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eaf0ed; color: #7c8b86; font-size: 11px; }
+    .stat-row strong { color: var(--ink); font: 700 15px 'Manrope', sans-serif; }
+    .qr-layout { grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr); }
+    .qr-input { width: 100%; height: 43px; margin: 0 0 13px; padding: 0 12px; border: 1px solid #dce8e3; border-radius: 6px; color: var(--ink); font-size: 11px; }
+    .qr-input::placeholder { color: #a0aca7; }
+    .qr-result { display: grid; place-items: center; min-height: 340px; padding: 25px; background-color: #eff9f5; background-image: radial-gradient(#cee9df 1px, transparent 1px); background-size: 17px 17px; }
+    .qr-paper { display: grid; place-items: center; width: min(240px, 100%); aspect-ratio: 1; padding: 18px; border-radius: 9px; background: #fff; box-shadow: 0 14px 35px rgba(34,88,77,.12); }
+    .qr-paper canvas, .qr-paper img { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+    .qr-placeholder { color: #9aa9a3; text-align: center; }
+    .qr-placeholder .material-symbols-rounded { display: block; margin-bottom: 11px; color: #9edbd0; font-size: 42px; }
+    .qr-placeholder span:last-child { font-size: 10px; }
+    .qr-result-note { margin: 15px 0 0; color: #7d8c87; font-size: 10px; text-align: center; }
+    .qr-result-note b { color: var(--ink); }
+    .qr-logo-control { display: flex; align-items: center; gap: 10px; min-height: 58px; margin: 0 0 16px; padding: 9px 10px; border: 1px solid #e2ebe7; border-radius: 6px; background: #fbfdfb; }
+    .qr-logo-preview { width: 34px; height: 34px; border: 1px solid #e2ebe7; border-radius: 5px; object-fit: cover; }
+    .qr-logo-preview[hidden] { display: none; }
+    .qr-logo-copy { display: grid; flex: 1; gap: 3px; }
+    .qr-logo-copy strong { font-size: 10px; }
+    .qr-logo-copy span { color: #899791; font-size: 9px; }
+    .review-note { display:flex; align-items:flex-start; gap:7px; margin-top:10px; color:#8b9994; font-size:10px; line-height:1.5; }
+    .review-note .material-symbols-rounded { flex:0 0 auto; color:var(--cyan-deep); font-size:15px; }
+    .review-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .review-status { color:#798984; font-size:10px; }
+    .review-status.error { color:#a65d43; }
+    .summary-result { margin-top: 14px; padding: 14px; border: 1px solid #dcece6; border-radius: 7px; background: #f6fbf8; }
+    .summary-result p { margin: 8px 0 0; color: #536560; font-size: 12px; line-height: 1.65; white-space: pre-line; }
+    .detector-score { font: 800 42px/1 'Manrope', sans-serif; letter-spacing: -1px; }
+    .detector-meter { height: 8px; overflow: hidden; border-radius: 999px; background: #e5efeb; }
+    .detector-meter-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7ad9c9, #f2cf79, #ee9b7d); transition: width .35s ease; }
+    .detector-stat { padding: 12px; border: 1px solid #e2ebe7; border-radius: 7px; background: #fbfdfb; }
+    .ai-highlight { border-radius: 4px; background-color: #bae6fd; color: #0f172a; padding: 0 4px; font-weight: 500; text-decoration: underline; text-decoration-color: #7dd3fc; text-underline-offset: 3px; }
+    .color-row { display: flex; align-items: center; justify-content: space-between; padding: 15px 0 20px; border-top: 1px solid #eaf0ed; }
+    .color-row label { color: #6d7d77; font-size: 10px; }
+    .color-row input { width: 40px; height: 31px; padding: 2px; border: 1px solid #dce8e3; border-radius: 5px; background: #fff; cursor: pointer; }
+    .history-heading { display:flex; justify-content:space-between; align-items:center; margin: 0 0 16px; }
+    .history-heading h2 { margin: 0; font: 700 15px 'Manrope', sans-serif; }
+    .history-list { overflow: hidden; border: 1px solid #deebe6; border-radius: 8px; background: white; }
+    .history-row { display:flex; align-items:center; gap:12px; min-height:66px; padding: 10px 16px; border-bottom:1px solid #edf2ef; }
+    .history-row:last-child { border-bottom:0; }
+    .history-row .file-info { flex:1; }
+    .history-row .file-size { margin-top:3px; }
+    .empty-history { padding:34px 20px; color:#8b9994; font-size:11px; text-align:center; }
+    .toast { position: fixed; right: 24px; bottom: 22px; z-index: 5; padding: 12px 16px; border-radius: 6px; background: var(--ink); color: #fff; font-size: 11px; box-shadow: var(--shadow); opacity: 0; transform: translateY(8px); pointer-events: none; transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .mobile-brand { display: none; }
+    @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 880px) {
+      .app-shell { grid-template-columns: 72px minmax(0, 1fr); }
+      .sidebar { align-items: center; padding: 22px 9px 15px; }
+      .brand { padding: 0; }
+      .brand-name, .nav-label, .nav-item span:not(.material-symbols-rounded), .privacy-note, .account-details { display: none; }
+      .nav-list { width: 100%; margin-top: 36px; }
+      .nav-item { justify-content: center; padding: 0; }
+      .account { justify-content: center; padding: 13px 0 0; }
+      .content { padding-right: 4%; padding-left: 4%; }
+      .workspace { grid-template-columns: minmax(0, 1fr) 270px; }
+      .upload-panel { padding: 22px 19px; }
+      .settings-panel { padding: 22px 17px; }
+    }
+    @media (max-width: 650px) {
+      .app-shell { display: block; padding-bottom: 62px; }
+      .sidebar { position: fixed; z-index: 4; inset: auto 0 0; display: block; width: 100%; height: 62px; padding: 5px 10px; border-top: 1px solid #d7e7e1; border-right: 0; background: rgba(236,246,242,.97); backdrop-filter: blur(12px); }
+      .brand, .sidebar-bottom, .nav-label { display: none; }
+      .nav-list { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; width: 100%; height: 100%; margin: 0; }
+      .nav-item { flex-direction: column; gap: 2px; min-height: 0; border-radius: 6px; font-size: 8px; line-height: 1.1; text-align: center; }
+      .nav-item span:not(.material-symbols-rounded) { display: block; }
+      .nav-item .material-symbols-rounded { font-size: 19px; }
+      .topbar { height: 54px; padding: 0 18px; }
+      .topbar-date { display: none; }
+      .mobile-brand { display: block; margin-right: auto; font: 800 16px 'Manrope', sans-serif; }
+      .mobile-brand span { color: var(--cyan-deep); }
+      .content { padding: 29px 17px 38px; }
+      .page-heading { align-items: flex-start; flex-direction: column; gap: 10px; margin-bottom: 21px; }
+      h1 { font-size: 32px; letter-spacing: -1.2px; }
+      .heading-note { max-width: 100%; }
+      .workspace, .tool-layout { grid-template-columns: 1fr; }
+      .pdf-editor-layout { grid-template-columns: 1fr; }
+      .pdf-editor-main { padding: 18px 15px; }
+      .pdf-editor-sidebar { position: static; max-height: none; border-top: 1px solid #e5eeea; border-left: 0; border-radius: 0 0 10px 10px; }
+      .pdf-editor-topbar { top: 54px; margin-right: -2px; margin-left: -2px; }
+      .upload-panel { min-height: 0; padding: 20px 17px; }
+      .dropzone { min-height: 220px; }
+      .settings-panel, .tool-aside { border-top: 1px solid #e5eeea; border-left: 0; }
+      .settings-panel { padding: 21px 18px; }
+      .below-grid { grid-template-columns: 1fr; gap: 0; }
+      .recent-strip { border-left: 0; }
+      .tool-main { padding: 20px 17px; }
+      .tool-aside { padding: 22px 18px; }
+      .text-area { min-height: 230px; }
+      .qr-result { min-height: 300px; }
+      .toast { right: 12px; bottom: 74px; left: 12px; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#convertir" aria-label="CAVIVI, inicio">
+        <span class="brand-mark"><span class="material-symbols-rounded">layers</span></span>
+        <span class="brand-name">CAVIVI<span>.</span></span>
+      </a>
+      <div class="nav-label">Espacio de trabajo</div>
+      <nav class="nav-list" aria-label="Herramientas">
+        <button class="nav-item active" data-view="convertir"><span class="material-symbols-rounded">sync_alt</span><span>Convertir</span></button>
+        <button class="nav-item" data-view="qr"><span class="material-symbols-rounded">qr_code_2</span><span>Código QR</span></button>
+        <button class="nav-item" data-view="texto"><span class="material-symbols-rounded">notes</span><span>Texto</span></button>
+        <button class="nav-item" data-view="prompts"><span class="material-symbols-rounded">edit_note</span><span>Prompts</span></button>
+        <button class="nav-item" data-view="limpiar"><span class="material-symbols-rounded">cleaning_services</span><span>Limpiar PDF</span></button>
+        <button class="nav-item" data-view="pdf-editor"><span class="material-symbols-rounded">picture_as_pdf</span><span>Edición PDF</span></button>
+        <button class="nav-item" data-view="historial"><span class="material-symbols-rounded">schedule</span><span>Actividad</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="privacy-note"><span class="material-symbols-rounded">lock</span><p>La mayoría de las herramientas procesa localmente. La limpieza PDF envía el archivo al servidor CAVIVI que estás ejecutando.</p></div>
+        <div class="account"><div class="avatar">C</div><div class="account-details"><div class="account-name">Mi espacio</div><div class="account-plan">Plan personal</div></div></div>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div class="mobile-brand">CAVIVI<span>.</span></div>
+        <div class="topbar-status"><span class="status-dot"></span>Todo listo</div>
+        <div class="topbar-date" id="today"></div>
+      </header>
+      <div class="content">
+        <section class="page-heading" id="heading">
+          <div><div class="eyebrow" id="eyebrow">Tu espacio de archivos</div><h1 id="page-title">Un formato para cada idea.</h1></div>
+          <p class="heading-note" id="page-note">Pequeñas herramientas, un espacio tranquilo para trabajar con tus archivos.</p>
+        </section>
+
+        <section class="page-view active" id="view-convertir">
+          <div class="workspace">
+            <div class="upload-panel">
+              <div class="panel-topline"><span class="panel-kicker">01 <span style="color:#c5d2cd">/</span> Archivo de origen</span><span class="file-limit"><span class="material-symbols-rounded">all_inclusive</span>Sin límite fijo</span></div>
+              <div class="dropzone" id="dropzone">
+                <div>
+                  <div class="upload-icon"><span class="material-symbols-rounded">upload_file</span></div>
+                  <h2>Elige un archivo para empezar</h2>
+                  <p>PDF, Word, PowerPoint, imágenes y texto</p>
+                  <button class="primary-button" id="browse-button"><span class="material-symbols-rounded">folder_open</span>Seleccionar archivo</button>
+                  <input id="file-input" type="file" hidden accept=".pdf,.docx,.pptx,.txt,.md,.csv,.jpg,.jpeg,.png,.webp,.gif,.svg">
+                </div>
+              </div>
+              <div class="file-row" id="file-row">
+                <div class="file-type-icon"><span class="material-symbols-rounded">description</span></div>
+                <div class="file-info"><div class="file-name" id="file-name"></div><div class="file-size" id="file-size"></div></div>
+                <button class="icon-button" id="remove-file" aria-label="Quitar archivo" title="Quitar archivo"><span class="material-symbols-rounded">close</span></button>
+              </div>
+              <div class="format-caption">Formatos compatibles</div>
+              <div class="format-list" id="format-list"></div>
+            </div>
+            <aside class="settings-panel">
+              <div class="panel-topline" style="margin-bottom:22px"><span class="panel-kicker">02 <span style="color:#c5d2cd">/</span> Preferencias</span><span class="material-symbols-rounded" style="color:#94a59e;font-size:18px">tune</span></div>
+              <h2 class="settings-title">Ajustes de salida</h2>
+              <p class="settings-subtitle">Elige el formato que necesitas. Los documentos se reconstruyen desde el texto y pueden cambiar de diseño.</p>
+              <label class="field-label" for="output-format">Convertir a</label>
+              <div class="select-wrap"><select id="output-format" aria-label="Formato de salida"></select><span class="material-symbols-rounded">expand_more</span></div>
+              <label class="field-label">Calidad de conversión</label>
+              <div class="option-list" id="quality-options">
+                <button class="option selected" data-quality="standard"><span class="radio-mark"></span>Estándar<span class="option-note">Rápida</span></button>
+                <button class="option" data-quality="high"><span class="radio-mark"></span>Alta calidad<span class="option-note">Detallada</span></button>
+              </div>
+              <button class="primary-button convert-button" id="convert-button" disabled><span>Convertir archivo</span><span class="material-symbols-rounded">arrow_forward</span></button>
+              <div class="result-banner" id="convert-result" role="status"></div>
+              <p class="privacy-line"><span class="material-symbols-rounded">verified_user</span>Procesamiento privado en tu dispositivo</p>
+            </aside>
+          </div>
+          <div class="below-grid textos-espacio-archivos">
+            <div class="tip-strip"><div class="tip-icon"><span class="material-symbols-rounded">lightbulb</span></div><div class="tip-text"><strong>Un detalle que importa</strong><span>La calidad alta conserva mejor las imágenes de tus documentos.</span></div></div>
+            <div class="recent-strip"><div class="recent-icon"><span class="material-symbols-rounded">history</span></div><div class="recent-text"><strong>Tu actividad</strong><span id="recent-summary">Todavía no hay conversiones</span></div></div>
+          </div>
+        </section>
+
+        <section class="page-view" id="view-limpiar">
+          <div class="tool-layout">
+            <div class="tool-main">
+              <h2>Limpia tu PDF.</h2>
+              <p>Sube un documento y GulagCleaner intentará descifrarlo y limpiarlo.</p>
+              <form id="pdf-clean-form" action="/limpiar" method="POST" enctype="multipart/form-data">
+                <label class="field-label" for="pdf-clean-input">Archivo PDF</label>
+                <div class="dropzone" id="pdf-clean-dropzone">
+                  <div>
+                    <div class="upload-icon"><span class="material-symbols-rounded">picture_as_pdf</span></div>
+                    <h2>Selecciona o arrastra un PDF</h2>
+                    <p>El archivo se envía al servidor local para procesarlo.</p>
+                    <button class="primary-button" id="pdf-clean-browse" type="button"><span class="material-symbols-rounded">folder_open</span>Elegir PDF</button>
+                    <input id="pdf-clean-input" name="archivo_pdf" type="file" accept="application/pdf,.pdf" hidden>
+                  </div>
+                </div>
+                <div class="file-row" id="pdf-clean-file-row">
+                  <div class="file-type-icon"><span class="material-symbols-rounded">picture_as_pdf</span></div>
+                  <div class="file-info"><div class="file-name" id="pdf-clean-file-name"></div><div class="file-size" id="pdf-clean-file-size"></div></div>
+                  <button class="icon-button" id="pdf-clean-remove" type="button" aria-label="Quitar PDF" title="Quitar PDF"><span class="material-symbols-rounded">close</span></button>
+                </div>
+                <button class="primary-button convert-button" id="pdf-clean-submit" type="submit" disabled style="margin-top:18px"><span>Limpiar PDF</span><span class="material-symbols-rounded">arrow_forward</span></button>
+                <div class="result-banner" id="pdf-clean-result" role="status"></div>
+              </form>
+            </div>
+            <aside class="tool-aside">
+              <h3 class="stats-title">Sobre el proceso</h3>
+              <div class="privacy-note" style="margin:0;background:#fff"><span class="material-symbols-rounded">lock</span><p>El PDF se procesa en el servidor donde ejecutas CAVIVI. No lo subas si no confías en ese servidor.</p></div>
+              <div class="stat-row" style="margin-top:18px"><span>Formato de salida</span><strong>PDF</strong></div>
+              <div class="stat-row"><span>Procesamiento</span><strong>Local</strong></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="page-view" id="view-pdf-editor">
+          <nav class="pdf-editor-topbar" aria-label="Herramientas PDF">
+            <button class="pdf-tool-tab active" type="button" data-pdf-mode="merge"><span class="material-symbols-rounded">merge_type</span>Unir</button>
+            <button class="pdf-tool-tab" type="button" data-pdf-mode="split"><span class="material-symbols-rounded">call_split</span>Dividir</button>
+            <button class="pdf-tool-tab" type="button" data-pdf-mode="compress"><span class="material-symbols-rounded">compress</span>Comprimir</button>
+            <button class="pdf-tool-tab" type="button" data-pdf-mode="reorder"><span class="material-symbols-rounded">swap_vert</span>Reordenar</button>
+            <button class="pdf-tool-tab" type="button" data-pdf-mode="number"><span class="material-symbols-rounded">format_list_numbered</span>Números</button>
+            <button class="pdf-tool-tab" type="button" data-pdf-mode="rotate"><span class="material-symbols-rounded">rotate_right</span>Rotar</button>
+            <button class="pdf-tool-tab" type="button" data-pdf-mode="remove"><span class="material-symbols-rounded">delete</span>Eliminar páginas</button>
+            <button class="pdf-tool-tab" type="button" data-pdf-mode="protect"><span class="material-symbols-rounded">lock</span>Proteger</button>
+          </nav>
+          <form id="pdf-editor-form" class="pdf-editor-layout">
+            <section class="pdf-editor-main">
+              <div class="mb-5 flex items-center justify-between gap-3"><div><h2 class="pdf-editor-main-title">Añade tus PDF</h2><p class="pdf-editor-main-note">Organiza los documentos antes de aplicar la operación.</p></div><button class="soft-button" id="pdf-editor-browse" type="button"><span class="material-symbols-rounded">add</span>Añadir PDF</button></div>
+              <label class="dropzone" id="pdf-editor-dropzone" for="pdf-editor-input" style="min-height:160px;cursor:pointer">
+                <div><div class="upload-icon"><span class="material-symbols-rounded">upload_file</span></div><h2 id="pdf-editor-upload-title">Selecciona varios PDF</h2><p id="pdf-editor-upload-note">El orden visual será el orden de unión.</p></div>
+              </label>
+              <input id="pdf-editor-input" type="file" accept="application/pdf,.pdf" multiple hidden>
+              <div class="file-row" id="pdf-editor-file-row"><div class="file-type-icon"><span class="material-symbols-rounded">picture_as_pdf</span></div><div class="file-info"><div class="file-name" id="pdf-editor-file-name"></div><div class="file-size" id="pdf-editor-file-size"></div></div><button class="icon-button" id="pdf-editor-remove" type="button" aria-label="Quitar PDF" title="Quitar PDF"><span class="material-symbols-rounded">close</span></button></div>
+              <div class="pdf-preview-board" id="pdf-editor-preview-board" hidden><div class="panel-topline" style="margin-bottom:8px"><span class="panel-kicker">Previsualización</span><span class="file-limit"><span class="material-symbols-rounded">drag_indicator</span><span id="pdf-editor-preview-instruction">Arrastra para reordenar</span></span></div><p class="pdf-preview-status" id="pdf-editor-preview-status" role="status" aria-live="polite"></p><div class="pdf-preview-grid" id="pdf-editor-previews" aria-label="Miniaturas de las páginas PDF"></div><p class="pdf-order-note" id="pdf-editor-order-note"></p></div>
+            </section>
+            <aside class="pdf-editor-sidebar">
+              <h2 class="settings-title">Ajustes</h2>
+              <label class="field-label" for="pdf-editor-action">Herramienta</label>
+              <div class="select-wrap"><select id="pdf-editor-action"><option value="merge">Unir PDFs</option><option value="split">Dividir PDF</option><option value="compress">Comprimir PDF</option><option value="reorder">Reordenar páginas</option><option value="number">Números de página</option><option value="rotate">Rotar páginas</option><option value="remove">Eliminar páginas</option><option value="protect">Proteger PDF</option><option value="unprotect">Quitar contraseña</option></select><span class="material-symbols-rounded">expand_more</span></div>
+              <label class="field-label" for="pdf-editor-password">Contraseña actual <span style="font-weight:400">(si aplica)</span></label><input class="qr-input" id="pdf-editor-password" type="password" autocomplete="current-password" placeholder="Contraseña del PDF">
+              <div class="pdf-editor-option" data-pdf-option="reorder" hidden><p class="pdf-order-note">Arrastra todas las hojas para establecer su orden definitivo.</p><input id="pdf-editor-order" type="hidden"></div>
+              <div class="pdf-editor-option" data-pdf-option="merge" hidden><button class="soft-button pdf-editor-toolbar-action" id="pdf-sort-name" type="button"><span class="material-symbols-rounded">sort_by_alpha</span>Ordenar alfabéticamente</button></div>
+              <div class="pdf-editor-option" data-pdf-option="number" hidden>
+                <label class="field-label" for="pdf-editor-number-format">Formato del texto</label><input class="qr-input" id="pdf-editor-number-format" type="text" value="Página {n} de {total}" maxlength="80" placeholder="Página {n} de {total}">
+                <label class="field-label" for="pdf-editor-font">Tipografía</label><div class="select-wrap"><select id="pdf-editor-font"><option value="Helvetica">Helvetica</option><option value="Helvetica-Bold">Helvetica Negrita</option><option value="Times-Roman">Times</option><option value="Times-Bold">Times Negrita</option><option value="Courier">Courier</option><option value="Courier-Bold">Courier Negrita</option></select><span class="material-symbols-rounded">expand_more</span></div>
+                <div class="grid grid-cols-2 gap-3"><div><label class="field-label" for="pdf-editor-font-size">Tamaño</label><input class="qr-input" id="pdf-editor-font-size" type="number" min="6" max="48" value="12"></div><div><label class="field-label" for="pdf-editor-font-color">Color</label><input class="qr-input" id="pdf-editor-font-color" type="color" value="#333333" style="padding:4px"></div></div>
+                <label class="field-label">Posición en la página</label><div class="pdf-position-grid" id="pdf-position-grid" role="group" aria-label="Posición de la numeración"><button type="button" data-position="top-left" aria-label="Arriba a la izquierda">↖</button><button type="button" data-position="top-center" aria-label="Arriba al centro">↑</button><button type="button" data-position="top-right" aria-label="Arriba a la derecha">↗</button><button type="button" data-position="middle-left" aria-label="Centro a la izquierda">←</button><button type="button" data-position="center" aria-label="Centro">•</button><button type="button" data-position="middle-right" aria-label="Centro a la derecha">→</button><button type="button" data-position="bottom-left" aria-label="Abajo a la izquierda">↙</button><button type="button" data-position="bottom-center" aria-label="Abajo al centro">↓</button><button type="button" data-position="bottom-right" class="selected" aria-label="Abajo a la derecha">↘</button></div><input id="pdf-editor-position" type="hidden" value="bottom-right"><input id="pdf-editor-start" type="hidden" value="1">
+              </div>
+              <div class="pdf-editor-option" data-pdf-option="split" hidden><label class="field-label">Rangos a extraer</label><div id="pdf-editor-ranges-list" class="pdf-range-list"><div class="pdf-range-row"><input class="qr-input pdf-range-input" type="text" placeholder="Ej.: 1-4" aria-label="Rango de páginas"><button class="icon-button pdf-range-remove" type="button" aria-label="Eliminar rango" disabled><span class="material-symbols-rounded">remove</span></button></div></div><button class="soft-button" id="pdf-editor-add-range" type="button" style="margin-bottom:12px"><span class="material-symbols-rounded">add</span>Añadir rango</button><label class="option"><input id="pdf-editor-split-all" type="checkbox"> Separar en un PDF por página (ZIP)</label></div>
+              <div class="pdf-editor-option" data-pdf-option="rotate" hidden><label class="field-label" for="pdf-editor-rotate-pages">Páginas a girar</label><input class="qr-input" id="pdf-editor-rotate-pages" type="text" value="all" placeholder="all o 1,3-5"><div class="select-wrap"><select id="pdf-editor-angle"><option value="90">Girar 90°</option><option value="180">Girar 180°</option><option value="270">Girar 270°</option></select><span class="material-symbols-rounded">expand_more</span></div></div>
+              <div class="pdf-editor-option" data-pdf-option="remove" hidden><p class="pdf-order-note">Haz clic en las páginas que quieras eliminar; aparecerán marcadas con una X.</p><p class="pdf-preview-status" id="pdf-editor-remove-status" aria-live="polite">0 páginas marcadas para eliminar.</p></div>
+              <div class="pdf-editor-option" data-pdf-option="compress" hidden><div class="privacy-note" style="margin:10px 0 16px;background:#fff"><span class="material-symbols-rounded">info</span><p>Optimización sin pérdida: recomprime streams y objetos; no degrada imágenes.</p></div></div>
+              <div class="pdf-editor-option" data-pdf-option="protect" hidden><label class="field-label" for="pdf-editor-new-password">Nueva contraseña</label><input class="qr-input" id="pdf-editor-new-password" type="password" autocomplete="new-password" placeholder="Mínimo 4 caracteres"><label class="field-label" for="pdf-editor-owner-password">Contraseña de propietario</label><input class="qr-input" id="pdf-editor-owner-password" type="password" autocomplete="new-password" placeholder="Opcional"></div>
+              <div class="pdf-editor-option" data-pdf-option="unprotect" hidden><p class="pdf-order-note">Escribe la contraseña actual para quitar la protección.</p></div>
+              <button class="primary-button convert-button" id="pdf-editor-submit" type="submit" disabled style="margin-top:16px"><span>Unir PDF</span><span class="material-symbols-rounded">arrow_forward</span></button><div class="result-banner" id="pdf-editor-result" role="status"></div>
+            </aside>
+          </form>
+        </section>
+
+        <section class="page-view qr-view" id="view-qr">
+          <div class="tool-layout qr-layout">
+            <div class="tool-main">
+              <h2>Un enlace, en un instante.</h2><p>Convierte texto o una dirección web en un código QR.</p>
+              <label class="field-label" for="qr-content">Texto o URL</label>
+              <input class="qr-input" id="qr-content" type="text" maxlength="1200" placeholder="https://ejemplo.com" autocomplete="off">
+              <div class="color-row"><label for="qr-color">Color del código</label><input id="qr-color" type="color" value="#173b38" aria-label="Color del código QR"></div>
+              <div class="qr-logo-control">
+                <img class="qr-logo-preview" id="qr-logo-preview" alt="Vista previa del centro del QR" hidden>
+                <div class="qr-logo-copy"><strong>Imagen central</strong><span>Opcional · PNG, JPG o SVG</span></div>
+                <button class="soft-button" id="qr-image-button"><span class="material-symbols-rounded">image</span>Añadir</button>
+                <button class="icon-button" id="remove-qr-image" aria-label="Quitar imagen central" title="Quitar imagen central" hidden><span class="material-symbols-rounded">close</span></button>
+                <input id="qr-image-input" type="file" hidden accept="image/png,image/jpeg,image/webp,image/svg+xml">
+              </div>
+              <button class="primary-button" id="generate-qr"><span class="material-symbols-rounded">qr_code_2</span>Crear código QR</button>
+              <button class="soft-button" id="download-qr" disabled style="margin-left:7px"><span class="material-symbols-rounded">download</span>Descargar PNG</button>
+            </div>
+            <div><div class="qr-result"><div class="qr-paper" id="qr-paper"><div class="qr-placeholder"><span class="material-symbols-rounded">qr_code_2</span><span>Tu código aparecerá aquí</span></div></div></div><p class="qr-result-note"><b>PNG</b> · Alta resolución · Sin marca de agua</p></div>
+          </div>
+        </section>
+
+        <section class="page-view text-view" id="view-texto">
+          <div class="tool-layout">
+            <div class="tool-main">
+              <h2>Palabras en orden.</h2><p>Un espacio sencillo para revisar y transformar texto.</p>
+              <textarea class="text-area" id="text-content" placeholder="Escribe o pega tu texto aquí…" spellcheck="true"></textarea>
+              <div class="review-note"><span class="material-symbols-rounded">cloud</span>La revisión se realiza con LanguageTool; el texto se envía para analizarlo. Se aplican correcciones ortográficas y gramaticales, no una reescritura creativa.</div>
+              <div class="review-actions">
+                <button class="soft-button" id="correct-spelling"><span class="material-symbols-rounded">spellcheck</span>Corregir ortografía</button>
+                <button class="soft-button" id="improve-writing"><span class="material-symbols-rounded">auto_fix_high</span>Mejorar redacción</button>
+                <button class="soft-button" id="summarize-text"><span class="material-symbols-rounded">summarize</span>Resumir texto</button>
+                <span class="review-status" id="review-status" role="status"></span>
+              </div>
+              <section id="summary-result" class="summary-result" aria-live="polite" hidden>
+                <div class="flex items-center justify-between gap-3">
+                  <strong class="text-xs font-bold text-emerald-900">Resumen</strong>
+                  <button class="soft-button" id="copy-summary"><span class="material-symbols-rounded">content_copy</span>Copiar</button>
+                </div>
+                <p id="summary-text"></p>
+              </section>
+              <div class="text-toolbar">
+                <button class="soft-button" data-text-action="uppercase"><span class="material-symbols-rounded">text_fields</span>MAYÚSCULAS</button>
+                <button class="soft-button" data-text-action="lowercase"><span class="material-symbols-rounded">format_size</span>minúsculas</button>
+                <button class="soft-button" data-text-action="copy"><span class="material-symbols-rounded">content_copy</span>Copiar</button>
+                <button class="soft-button" data-text-action="download"><span class="material-symbols-rounded">download</span>Guardar TXT</button>
+                <span class="word-count" id="word-count">0 palabras</span>
+              </div>
+            </div>
+            <aside class="tool-aside"><h3 class="stats-title">En este texto</h3>
+              <div class="stat-row"><span>Palabras</span><strong id="stat-words">0</strong></div>
+              <div class="stat-row"><span>Caracteres</span><strong id="stat-chars">0</strong></div>
+              <div class="stat-row"><span>Sin espacios</span><strong id="stat-no-spaces">0</strong></div>
+              <div class="stat-row"><span>Líneas</span><strong id="stat-lines">0</strong></div>
+              <div style="margin-top:23px"><label class="field-label" for="text-export">Guardar como</label><div class="select-wrap" style="margin-bottom:0"><select id="text-export"><option value="pdf">PDF</option><option value="docx">Documento Word (.docx)</option><option value="pptx">PowerPoint (.pptx)</option><option value="txt">Texto plano</option></select><span class="material-symbols-rounded">expand_more</span></div><button class="soft-button" id="export-text" style="width:100%;justify-content:center;margin-top:10px"><span class="material-symbols-rounded">file_download</span>Exportar documento</button></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="ai-subsection" id="detector-ia">
+          <div class="mx-auto w-full max-w-5xl overflow-hidden rounded-lg border border-emerald-100 bg-white shadow-sm">
+            <div class="grid md:grid-cols-[minmax(0,1.2fr)_minmax(260px,.8fr)]">
+              <div class="p-5 sm:p-7">
+                <div class="mb-5 flex items-start gap-3">
+                  <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal-100 text-teal-800"><span class="material-symbols-rounded">psychology</span></span>
+                  <div><h2 class="font-['Manrope'] text-lg font-bold text-slate-800">Detector y humanizador</h2><p class="mt-1 text-xs leading-relaxed text-slate-500">Analiza patrones de estilo y suaviza frases rígidas. Todo se procesa localmente.</p></div>
+                </div>
+                <label class="mb-2 block text-xs font-bold text-slate-600" for="ai-text">Texto para analizar</label>
+                <textarea id="ai-text" class="min-h-64 w-full resize-y rounded-md border border-emerald-100 bg-emerald-50/30 p-4 text-sm leading-relaxed text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100" placeholder="Pega aquí el texto que quieras revisar…" spellcheck="true"></textarea>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button class="primary-button" id="detect-ai"><span class="material-symbols-rounded">query_stats</span>Detectar IA</button>
+                  <button class="soft-button" id="humanize-text"><span class="material-symbols-rounded">edit_note</span>Humanizar texto</button>
+                  <button class="icon-button" id="clear-ai-text" aria-label="Vaciar texto" title="Vaciar texto"><span class="material-symbols-rounded">delete</span></button>
+                </div>
+                <p class="mt-4 text-[11px] leading-relaxed text-slate-400">El humanizador aplica cambios locales a expresiones concretas; revisa el resultado para conservar tu intención.</p>
+              </div>
+              <aside class="border-t border-emerald-100 bg-emerald-50/40 p-5 sm:p-7 md:border-l md:border-t-0">
+                <div class="mb-5 flex items-center justify-between"><h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Indicador orientativo</h3><span class="material-symbols-rounded text-teal-700">analytics</span></div>
+                <div class="mb-3 flex items-end gap-2"><strong class="detector-score text-slate-800" id="ai-score">--%</strong><span class="pb-1 text-xs text-slate-400">estimación heurística</span></div>
+                <div class="detector-meter"><div class="detector-meter-fill" id="ai-meter" style="width:0%"></div></div>
+                <p class="mt-3 text-xs leading-relaxed text-slate-500" id="ai-verdict" aria-live="polite">Pega al menos 30 palabras y 3 frases para analizar patrones.</p>
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                  <div class="detector-stat"><span class="block text-[10px] text-slate-400">Variación de frases</span><strong class="mt-1 block text-sm text-slate-700" id="ai-variation">--</strong></div>
+                  <div class="detector-stat"><span class="block text-[10px] text-slate-400">Clichés detectados</span><strong class="mt-1 block text-sm text-slate-700" id="ai-cliches">--</strong></div>
+                </div>
+                <div class="mt-5 rounded-md border border-amber-100 bg-amber-50 p-3 text-[10px] leading-relaxed text-amber-900"><strong>Aviso:</strong> los detectores basados en estilo no pueden determinar con fiabilidad quién escribió un texto. Este porcentaje no es una prueba de autoría.</div>
+              </aside>
+            </div>
+            <div id="ai-comparison" class="hidden grid gap-4 border-t border-emerald-100 bg-emerald-50/20 p-5 sm:p-7 lg:grid-cols-2" hidden>
+              <article class="min-w-0 rounded-md border border-sky-100 bg-white p-4">
+                <div class="mb-3 flex items-center justify-between gap-2"><h3 class="text-xs font-bold text-slate-700">Original · patrones detectados</h3><span class="rounded bg-sky-100 px-2 py-1 text-[10px] font-medium text-sky-900">Resaltado azul</span></div>
+                <div id="ai-original-highlight" class="min-h-32 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700"></div>
+              </article>
+              <article class="min-w-0 rounded-md border border-emerald-100 bg-white p-4">
+                <div class="mb-3 flex items-center justify-between gap-2"><h3 class="text-xs font-bold text-slate-700">Texto humanizado</h3><button class="soft-button" id="copy-humanized" disabled><span class="material-symbols-rounded">content_copy</span>Copiar</button></div>
+                <div id="ai-humanized-output" class="min-h-32 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">Pulsa «Humanizar texto» para generar una versión.</div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="page-view" id="view-prompts">
+          <div class="mx-auto w-full max-w-4xl overflow-hidden rounded-lg border border-emerald-100 bg-white shadow-sm">
+            <div class="p-5 sm:p-8">
+              <div class="mb-6 flex items-start gap-3">
+                <span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-teal-100 text-teal-800"><span class="material-symbols-rounded">edit_note</span></span>
+                <div><h2 class="font-['Manrope'] text-lg font-bold text-slate-800">✍️ Generador de Prompts</h2><p class="mt-1 text-xs leading-relaxed text-slate-500">Convierte una idea sencilla en instrucciones claras y listas para usar.</p></div>
+              </div>
+              <label class="mb-2 block text-xs font-bold text-slate-600" for="prompt-idea">¿Qué quieres lograr?</label>
+              <textarea id="prompt-idea" class="min-h-36 w-full resize-y rounded-md border border-emerald-100 bg-emerald-50/30 p-4 text-sm leading-relaxed text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100" placeholder="Ej.: quiero un post para Instagram sobre fitness"></textarea>
+              <div class="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                <div>
+                  <label class="mb-2 block text-xs font-bold text-slate-600" for="prompt-role">Rol o tono</label>
+                  <div class="select-wrap mb-0"><select id="prompt-role" class="!h-11 !border-emerald-100 !bg-emerald-50/30 !text-sm"><option value="marketing">Experto en Marketing</option><option value="programmer">Programador Senior</option><option value="teacher">Profesor</option><option value="content">Creador de Contenido</option><option value="creative">Redactor Creativo</option></select><span class="material-symbols-rounded">expand_more</span></div>
+                </div>
+                <button class="primary-button !min-h-11 !bg-teal-700 !text-white hover:!bg-teal-800" id="generate-prompt"><span class="material-symbols-rounded">auto_awesome</span>Generar Prompt Optimizado</button>
+              </div>
+              <p class="mt-3 text-[11px] leading-relaxed text-slate-400">La generación se realiza localmente, sin enviar tu idea a un servicio externo.</p>
+            </div>
+            <section id="prompt-result" class="hidden border-t border-emerald-100 bg-emerald-50/30 p-5 sm:p-8" aria-live="polite" hidden>
+              <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div><h3 class="text-sm font-bold text-slate-800">Tu prompt optimizado</h3><p class="mt-1 text-[11px] text-slate-500">Puedes copiarlo y pegarlo en tu asistente de IA.</p></div>
+                <button class="soft-button" id="copy-prompt"><span class="material-symbols-rounded">content_copy</span>Copiar al portapapeles</button>
+              </div>
+              <pre id="prompt-output" class="whitespace-pre-wrap break-words rounded-md border border-emerald-100 bg-white p-4 text-xs leading-relaxed text-slate-700"></pre>
+              <p id="prompt-copy-status" class="mt-3 min-h-4 text-xs text-teal-800" role="status" aria-live="polite"></p>
+            </section>
+          </div>
+        </section>
+
+        <section class="page-view history-view" id="view-historial">
+          <div class="history-heading"><h2>Actividad reciente</h2><button class="soft-button" id="clear-history"><span class="material-symbols-rounded">delete</span>Limpiar</button></div>
+          <div class="history-list" id="history-list"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    const icon = (name) => `<span class="material-symbols-rounded">${name}</span>`;
+    const views = {
+      convertir: { title: 'Un formato para cada idea.', eyebrow: 'Tu espacio de archivos', note: 'Pequeñas herramientas, un espacio tranquilo para trabajar con tus archivos.' },
+      qr: { title: 'Comparte con un escaneo.', eyebrow: 'Generador QR', note: 'Una dirección o una frase, lista para llevar a cualquier parte.' },
+      texto: { title: 'Dale forma a tus palabras.', eyebrow: 'Espacio de texto', note: 'Cuenta, transforma y exporta tus textos desde un mismo lugar.' },
+      prompts: { title: 'Convierte ideas en instrucciones claras.', eyebrow: 'Generador de Prompts', note: 'Elige un rol y crea un prompt profesional en un instante.' },
+      limpiar: { title: 'Limpia documentos PDF.', eyebrow: 'Limpieza de archivos', note: 'Procesa un PDF con GulagCleaner en tu servidor local.' },
+      'pdf-editor': { title: 'Edita y organiza tus documentos.', eyebrow: 'Edición de PDF', note: 'Une, reordena, numera, divide, rota, optimiza o protege archivos PDF.' },
+      historial: { title: 'Todo lo que has hecho.', eyebrow: 'Tu espacio de archivos', note: 'Tus conversiones recientes, guardadas solo en este navegador.' }
+    };
+    const categories = {
+      pdf: { label: 'PDF', outputs: [['docx', 'Word (.docx)'], ['pptx', 'PowerPoint (.pptx)'], ['txt', 'Texto plano']] },
+      docx: { label: 'Word', outputs: [['pdf', 'PDF'], ['pptx', 'PowerPoint (.pptx)'], ['txt', 'Texto plano']] },
+      pptx: { label: 'PowerPoint', outputs: [['pdf', 'PDF'], ['docx', 'Word (.docx)'], ['txt', 'Texto plano']] },
+      image: { label: 'Imagen', outputs: [['pdf', 'PDF'], ['jpg', 'JPG'], ['png', 'PNG']] },
+      text: { label: 'Texto', outputs: [['pdf', 'PDF'], ['docx', 'Word (.docx)'], ['pptx', 'PowerPoint (.pptx)'], ['txt', 'Texto plano']] }
+    };
+    const imageTypes = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+    const textTypes = ['txt', 'md', 'csv'];
+    const fileInput = document.querySelector('#file-input');
+    const dropzone = document.querySelector('#dropzone');
+    const fileRow = document.querySelector('#file-row');
+    const outputSelect = document.querySelector('#output-format');
+    const convertButton = document.querySelector('#convert-button');
+    const resultBanner = document.querySelector('#convert-result');
+    let selectedFile = null;
+    let selectedCategory = null;
+    let selectedQuality = 'standard';
+    let qrCode = null;
+    let qrLogoFile = null;
+    let toastTimer;
+
+    function showToast(message) {
+      const toast = document.querySelector('#toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+    async function writeTextToClipboard(value) {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        return;
+      }
+      const temporary = document.createElement('textarea');
+      temporary.value = value;
+      temporary.style.position = 'fixed';
+      temporary.style.opacity = '0';
+      document.body.append(temporary);
+      temporary.select();
+      try {
+        if (!document.execCommand('copy')) throw new Error('El navegador no permitió copiar el texto.');
+      } finally {
+        temporary.remove();
+      }
+    }
+    const promptRoleTemplates = {
+      marketing: {
+        role: 'Experto en Marketing',
+        focus: 'Define el objetivo, la audiencia, el mensaje central y una llamada a la acción adecuada. Propón métricas útiles si aportan valor.',
+        format: 'Entrega una propuesta organizada con objetivo, audiencia, mensaje, pieza o estrategia y llamada a la acción.'
+      },
+      programmer: {
+        role: 'Programador Senior',
+        focus: 'Propón una solución clara, mantenible y segura. Explica las decisiones relevantes, los casos límite y cómo verificar el resultado.',
+        format: 'Incluye enfoque, código completo cuando corresponda, explicación breve y pruebas o casos de verificación.'
+      },
+      teacher: {
+        role: 'Profesor',
+        focus: 'Adapta la explicación al nivel de quien aprende. Avanza paso a paso, define los conceptos nuevos y usa ejemplos concretos.',
+        format: 'Organiza la respuesta en objetivo de aprendizaje, explicación, ejemplo y una actividad o pregunta de comprobación.'
+      },
+      content: {
+        role: 'Creador de Contenido',
+        focus: 'Adapta el mensaje al canal, al público y al objetivo. Prioriza un inicio atractivo, información útil y una llamada a la acción natural.',
+        format: 'Entrega una pieza lista para publicar con gancho, cuerpo, cierre y variantes o etiquetas solo si son pertinentes.'
+      },
+      creative: {
+        role: 'Redactor Creativo',
+        focus: 'Elige una voz y un recurso narrativo apropiados. Mantén el texto original, concreto y coherente con el propósito.',
+        format: 'Entrega una propuesta terminada y, cuando ayude, una alternativa breve de tono o enfoque.'
+      }
+    };
+    const promptIdea = document.querySelector('#prompt-idea');
+    const promptRole = document.querySelector('#prompt-role');
+    const promptResult = document.querySelector('#prompt-result');
+    function resetPromptResult() {
+      promptResult.hidden = true;
+      promptResult.classList.add('hidden');
+      document.querySelector('#prompt-copy-status').textContent = '';
+    }
+    document.querySelector('#generate-prompt').addEventListener('click', () => {
+      const idea = promptIdea.value.trim();
+      const status = document.querySelector('#prompt-copy-status');
+      if (!idea) {
+        status.textContent = 'Escribe una idea antes de generar el prompt.';
+        status.className = 'mt-3 min-h-4 text-xs text-rose-700';
+        showToast('Escribe una idea antes de generar el prompt.');
+        promptIdea.focus();
+        return;
+      }
+      const template = promptRoleTemplates[promptRole.value] || promptRoleTemplates.marketing;
+      const prompt = [
+        `Actúa como ${template.role}, con experiencia práctica y criterio profesional.`,
+        '',
+        'CONTEXTO',
+        'La persona usuaria quiere conseguir lo siguiente:',
+        `"${idea}"`,
+        '',
+        'TAREA',
+        'Desarrolla una respuesta concreta que resuelva esa necesidad. Si falta un dato imprescindible, formula primero una pregunta breve; si no, continúa indicando cualquier supuesto importante.',
+        '',
+        'CRITERIOS',
+        `- ${template.focus}`,
+        '- Evita generalidades, repeticiones y datos inventados.',
+        '- Usa un tono claro, útil y adecuado al público.',
+        '',
+        'FORMATO DE SALIDA',
+        template.format
+      ].join('\n');
+      document.querySelector('#prompt-output').textContent = prompt;
+      promptResult.hidden = false;
+      promptResult.classList.remove('hidden');
+      status.textContent = 'Prompt generado en este dispositivo.';
+      status.className = 'mt-3 min-h-4 text-xs text-teal-800';
+    });
+    promptIdea.addEventListener('input', resetPromptResult);
+    promptRole.addEventListener('change', resetPromptResult);
+    document.querySelector('#copy-prompt').addEventListener('click', async () => {
+      const status = document.querySelector('#prompt-copy-status');
+      try {
+        await writeTextToClipboard(document.querySelector('#prompt-output').textContent);
+        status.textContent = 'Copiado al portapapeles.';
+        status.className = 'mt-3 min-h-4 text-xs font-semibold text-teal-800';
+        showToast('Prompt copiado al portapapeles.');
+      } catch {
+        status.textContent = 'No se pudo copiar; selecciona el texto y cópialo manualmente.';
+        status.className = 'mt-3 min-h-4 text-xs text-rose-700';
+      }
+    });
+    function setView(name) {
+      document.querySelectorAll('.nav-item').forEach((item) => item.classList.toggle('active', item.dataset.view === name));
+      document.querySelectorAll('.page-view').forEach((view) => view.classList.toggle('active', view.id === `view-${name}`));
+      document.querySelector('#page-title').textContent = views[name].title;
+      document.querySelector('#eyebrow').textContent = views[name].eyebrow;
+      document.querySelector('#page-note').textContent = views[name].note;
+      history.replaceState(null, '', `#${name}`);
+    }
+    document.querySelectorAll('.nav-item').forEach((item) => item.addEventListener('click', () => setView(item.dataset.view)));
+    const initialView = location.hash.slice(1);
+    if (views[initialView]) setView(initialView);
+    document.querySelector('#view-texto').append(document.querySelector('#detector-ia'));
+    document.querySelector('#today').textContent = new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium' }).format(new Date());
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+    function getCategory(file) {
+      const extension = file.name.split('.').pop().toLowerCase();
+      if (extension === 'pdf' || file.type === 'application/pdf') return 'pdf';
+      if (extension === 'docx') return 'docx';
+      if (extension === 'pptx') return 'pptx';
+      if (imageTypes.includes(extension) || file.type.startsWith('image/')) return 'image';
+      if (textTypes.includes(extension) || file.type.startsWith('text/')) return 'text';
+      return null;
+    }
+    function updateFormats() {
+      const config = categories[selectedCategory];
+      outputSelect.innerHTML = config.outputs.map(([value, label]) => `<option value="${value}">${label}</option>`).join('');
+      const labels = config.outputs.map(([value]) => value.toUpperCase());
+      document.querySelector('#format-list').innerHTML = labels.map((label, index) => `<span class="format-pill">${icon(index === 0 ? 'description' : 'insert_drive_file')}${label}</span>`).join('');
+    }
+    function selectFile(file) {
+      if (!file) return;
+      const category = getCategory(file);
+      if (!category) { showToast('Este formato todavía no es compatible.'); return; }
+      selectedFile = file;
+      selectedCategory = category;
+      document.querySelector('#file-name').textContent = file.name;
+      document.querySelector('#file-size').textContent = `${categories[category].label} · ${formatBytes(file.size)}`;
+      fileRow.classList.add('visible');
+      updateFormats();
+      convertButton.disabled = false;
+      resultBanner.className = 'result-banner';
+    }
+    document.querySelector('#browse-button').addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => { selectFile(fileInput.files[0]); fileInput.value = ''; });
+    document.querySelector('#remove-file').addEventListener('click', () => {
+      selectedFile = null; selectedCategory = null; fileRow.classList.remove('visible'); convertButton.disabled = true;
+      document.querySelector('#format-list').innerHTML = '';
+      resultBanner.className = 'result-banner';
+    });
+    for (const eventName of ['dragenter', 'dragover']) dropzone.addEventListener(eventName, (event) => { event.preventDefault(); dropzone.classList.add('dragover'); });
+    for (const eventName of ['dragleave', 'drop']) dropzone.addEventListener(eventName, (event) => { event.preventDefault(); dropzone.classList.remove('dragover'); });
+    dropzone.addEventListener('drop', (event) => selectFile(event.dataTransfer.files[0]));
+    document.querySelectorAll('.option').forEach((option) => option.addEventListener('click', () => {
+      document.querySelectorAll('.option').forEach((item) => item.classList.remove('selected'));
+      option.classList.add('selected'); selectedQuality = option.dataset.quality;
+    }));
+
+    function downloadBlob(blob, filename) {
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.href = url; link.download = filename; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+    }
+    function outputName(extension) { return `${selectedFile.name.replace(/\.[^.]+$/, '')}.${extension}`; }
+    function addHistory(name, format) {
+      const items = JSON.parse(localStorage.getItem('cian-history') || '[]');
+      items.unshift({ name, format, date: new Date().toISOString() });
+      localStorage.setItem('cian-history', JSON.stringify(items.slice(0, 20)));
+      updateHistory();
+    }
+    function showResult(message, error = false) {
+      resultBanner.innerHTML = `${icon(error ? 'error' : 'check_circle')}<span>${message}</span>`;
+      resultBanner.className = `result-banner visible${error ? ' error' : ''}`;
+    }
+    async function extractDocumentText(file, category) {
+      if (category === 'text') return file.text();
+      if (category === 'pdf') {
+        if (!window.pdfjsLib) throw new Error('No se pudo cargar el lector PDF. Comprueba tu conexión.');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const documentPdf = await pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+        const pages = [];
+        for (let pageNumber = 1; pageNumber <= documentPdf.numPages; pageNumber++) {
+          const page = await documentPdf.getPage(pageNumber);
+          const content = await page.getTextContent();
+          pages.push(content.items.map((item) => item.str).join(' '));
+        }
+        return pages.join('\n\n');
+      }
+      if (category === 'docx') {
+        if (!window.mammoth) throw new Error('No se pudo cargar el lector Word. Comprueba tu conexión.');
+        const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+        return result.value;
+      }
+      if (category === 'pptx') {
+        if (!window.JSZip) throw new Error('No se pudo cargar el lector PowerPoint. Comprueba tu conexión.');
+        const archive = await JSZip.loadAsync(await file.arrayBuffer());
+        const slideFiles = Object.keys(archive.files).filter((name) => /^ppt\/slides\/slide\d+\.xml$/.test(name)).sort((a, b) => Number(a.match(/slide(\d+)/)[1]) - Number(b.match(/slide(\d+)/)[1]));
+        const slides = [];
+        for (const name of slideFiles) {
+          const xml = new DOMParser().parseFromString(await archive.files[name].async('text'), 'application/xml');
+          const paragraphs = Array.from(xml.getElementsByTagNameNS('http://schemas.openxmlformats.org/drawingml/2006/main', 'p'));
+          slides.push(paragraphs.map((paragraph) => Array.from(paragraph.getElementsByTagNameNS('http://schemas.openxmlformats.org/drawingml/2006/main', 't')).map((run) => run.textContent).join('')).filter(Boolean).join('\n'));
+        }
+        return slides.join('\n\n');
+      }
+      throw new Error('No se pudo leer el contenido de este archivo.');
+    }
+    function createPdfBlob(text) {
+      const { jsPDF } = window.jspdf || {};
+      if (!jsPDF) throw new Error('No se pudo cargar el creador de PDF. Comprueba tu conexión.');
+      const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+      const lines = pdf.splitTextToSize(text || ' ', 515);
+      let y = 52;
+      for (const line of lines) { if (y > 790) { pdf.addPage(); y = 52; } pdf.text(line, 48, y); y += 15; }
+      return pdf.output('blob');
+    }
+    async function createDocxBlob(text) {
+      if (!window.docx) throw new Error('No se pudo cargar el creador de Word. Comprueba tu conexión.');
+      const { Document, Paragraph, TextRun, Packer } = window.docx;
+      const paragraphs = (text || ' ').split(/\r?\n/).map((line) => new Paragraph({ children: [new TextRun(line || ' ')] }));
+      const documentWord = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+      return Packer.toBlob(documentWord);
+    }
+    async function createPptxBlob(text) {
+      const PptxGenJS = window.PptxGenJS;
+      if (!PptxGenJS) throw new Error('No se pudo cargar el creador de PowerPoint. Comprueba tu conexión.');
+      const presentation = new PptxGenJS();
+      presentation.layout = 'LAYOUT_WIDE';
+      presentation.author = 'CAVIVI';
+      const lines = (text || ' ').split(/\r?\n/);
+      for (let index = 0; index < lines.length; index += 8) {
+        const slide = presentation.addSlide();
+        slide.addText(lines.slice(index, index + 8).join('\n') || ' ', { x: 0.7, y: 0.65, w: 11.9, h: 6.15, fontFace: 'Aptos', fontSize: 22, color: '172C2D', breakLine: false, valign: 'top', fit: 'shrink' });
+      }
+      const output = await presentation.write({ outputType: 'blob' });
+      return new Blob([output], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
+    }
+    async function convertFile() {
+      if (!selectedFile) return;
+      const extension = outputSelect.value;
+      const sourceFile = selectedFile;
+      const sourceCategory = selectedCategory;
+      convertButton.disabled = true;
+      convertButton.querySelector('span:first-child').textContent = 'Preparando archivo…';
+      try {
+        let blob;
+        if (sourceCategory === 'image') {
+          if (extension === 'pdf') {
+            const image = await loadImage(await readAsDataURL(sourceFile));
+            const pdf = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+            const pageWidth = 595, pageHeight = 842, margin = 36;
+            const scale = Math.min((pageWidth - margin * 2) / image.width, (pageHeight - margin * 2) / image.height);
+            const canvas = document.createElement('canvas');
+            canvas.width = image.width; canvas.height = image.height;
+            const context = canvas.getContext('2d');
+            context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height); context.drawImage(image, 0, 0);
+            pdf.addImage(canvas.toDataURL('image/jpeg', selectedQuality === 'high' ? .95 : .82), 'JPEG', (pageWidth - image.width * scale) / 2, (pageHeight - image.height * scale) / 2, image.width * scale, image.height * scale);
+            blob = pdf.output('blob');
+          } else {
+            const image = await loadImage(await readAsDataURL(sourceFile));
+            const canvas = document.createElement('canvas');
+            canvas.width = image.naturalWidth || image.width; canvas.height = image.naturalHeight || image.height;
+            const context = canvas.getContext('2d');
+            if (extension === 'jpg') { context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height); }
+            context.drawImage(image, 0, 0);
+            blob = await new Promise((resolve) => canvas.toBlob(resolve, extension === 'jpg' ? 'image/jpeg' : 'image/png', selectedQuality === 'high' ? .95 : .82));
+          }
+          if (!blob) throw new Error('No se pudo generar el archivo de imagen.');
+        } else {
+          const text = await extractDocumentText(sourceFile, sourceCategory);
+          if (extension === 'txt') blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+          if (extension === 'pdf') blob = createPdfBlob(text);
+          if (extension === 'docx') blob = await createDocxBlob(text);
+          if (extension === 'pptx') blob = await createPptxBlob(text);
+        }
+        if (!blob) throw new Error(`No se pudo convertir a ${extension.toUpperCase()}.`);
+        const name = outputName(extension);
+        downloadBlob(blob, name);
+        addHistory(name, extension.toUpperCase());
+        showResult('Conversión lista. El archivo se descargará en un momento.');
+      } catch (error) {
+        showResult(error.message || 'No se pudo convertir el archivo.', true);
+      } finally {
+        convertButton.disabled = !selectedFile;
+        convertButton.querySelector('span:first-child').textContent = 'Convertir archivo';
+      }
+    }
+    convertButton.addEventListener('click', convertFile);
+    function escapeHtml(text) { return text.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
+    function readAsDataURL(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); }
+    function loadImage(source) { return new Promise((resolve, reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = () => reject(new Error('No se pudo leer esta imagen.')); image.src = source; }); }
+
+    const pdfCleanInput = document.querySelector('#pdf-clean-input');
+    const pdfCleanDropzone = document.querySelector('#pdf-clean-dropzone');
+    const pdfCleanSubmit = document.querySelector('#pdf-clean-submit');
+    const pdfCleanResult = document.querySelector('#pdf-clean-result');
+    let pdfToClean = null;
+    function showPdfCleanResult(message, error = false) {
+      pdfCleanResult.innerHTML = `${icon(error ? 'error' : 'check_circle')}<span></span>`;
+      pdfCleanResult.querySelector('span:last-child').textContent = message;
+      pdfCleanResult.className = `result-banner visible${error ? ' error' : ''}`;
+    }
+    function selectPdfToClean(file) {
+      if (!file) return;
+      if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+        showPdfCleanResult('Selecciona un archivo PDF.', true);
+        return;
+      }
+      pdfToClean = file;
+      document.querySelector('#pdf-clean-file-name').textContent = file.name;
+      document.querySelector('#pdf-clean-file-size').textContent = `PDF · ${formatBytes(file.size)}`;
+      document.querySelector('#pdf-clean-file-row').classList.add('visible');
+      pdfCleanSubmit.disabled = false;
+      pdfCleanResult.className = 'result-banner';
+    }
+    document.querySelector('#pdf-clean-browse').addEventListener('click', () => pdfCleanInput.click());
+    pdfCleanInput.addEventListener('change', () => {
+      selectPdfToClean(pdfCleanInput.files[0]);
+      pdfCleanInput.value = '';
+    });
+    document.querySelector('#pdf-clean-remove').addEventListener('click', () => {
+      pdfToClean = null;
+      document.querySelector('#pdf-clean-file-row').classList.remove('visible');
+      pdfCleanSubmit.disabled = true;
+      pdfCleanResult.className = 'result-banner';
+    });
+    for (const eventName of ['dragenter', 'dragover']) pdfCleanDropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      pdfCleanDropzone.classList.add('dragover');
+    });
+    for (const eventName of ['dragleave', 'drop']) pdfCleanDropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      pdfCleanDropzone.classList.remove('dragover');
+    });
+    pdfCleanDropzone.addEventListener('drop', (event) => selectPdfToClean(event.dataTransfer.files[0]));
+    document.querySelector('#pdf-clean-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!pdfToClean) {
+        showPdfCleanResult('Selecciona un PDF antes de continuar.', true);
+        return;
+      }
+      if (location.protocol === 'file:') {
+        window.location.assign('http://127.0.0.1:5000/?reselect-pdf=1#limpiar');
+        return;
+      }
+      const originalLabel = pdfCleanSubmit.querySelector('span:first-child').textContent;
+      pdfCleanSubmit.disabled = true;
+      pdfCleanSubmit.querySelector('span:first-child').textContent = 'Limpiando PDF…';
+      showPdfCleanResult('Subiendo y procesando el PDF…');
+      try {
+        const body = new FormData();
+        body.append('archivo_pdf', pdfToClean, pdfToClean.name);
+        const response = await fetch('/limpiar', { method: 'POST', body });
+        if (!response.ok) {
+          let message = 'No se pudo limpiar el PDF.';
+          try { message = (await response.json()).error || message; } catch {}
+          throw new Error(message);
+        }
+        const blob = await response.blob();
+        const disposition = response.headers.get('Content-Disposition') || '';
+        const filenameMatch = disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
+        const filename = filenameMatch ? decodeURIComponent(filenameMatch[1] || filenameMatch[2]) : `clean_${pdfToClean.name}`;
+        downloadBlob(blob, filename);
+        addHistory(filename, 'PDF limpio');
+        showPdfCleanResult('PDF limpio. La descarga debería comenzar automáticamente.');
+      } catch (error) {
+        showPdfCleanResult(error.message || 'No se pudo conectar con el limpiador PDF.', true);
+      } finally {
+        pdfCleanSubmit.disabled = !pdfToClean;
+        pdfCleanSubmit.querySelector('span:first-child').textContent = originalLabel;
+      }
+    });
+    if (new URLSearchParams(location.search).get('reselect-pdf') === '1') {
+      showPdfCleanResult('Ya estás en el servidor local. Vuelve a elegir el PDF para limpiarlo.');
+    }
+
+    const pdfEditorForm = document.querySelector('#pdf-editor-form');
+    const pdfEditorInput = document.querySelector('#pdf-editor-input');
+    const pdfEditorDropzone = document.querySelector('#pdf-editor-dropzone');
+    const pdfEditorAction = document.querySelector('#pdf-editor-action');
+    const pdfEditorSubmit = document.querySelector('#pdf-editor-submit');
+    const pdfEditorResult = document.querySelector('#pdf-editor-result');
+    let pdfEditorFiles = [];
+    let pdfEditorPages = [];
+    let pdfEditorFilePageCounts = [];
+    let pdfPreviewRequest = 0;
+    const pdfRemovedPages = new Set();
+    const pdfEditorEndpoints = {
+      merge: '/pdf/unir',
+      reorder: '/pdf/reordenar',
+      number: '/pdf/numerar',
+      split: '/pdf/dividir',
+      rotate: '/pdf/rotar',
+      remove: '/pdf/eliminar',
+      compress: '/pdf/comprimir',
+      protect: '/pdf/proteger',
+      unprotect: '/pdf/desproteger'
+    };
+    function showPdfEditorResult(message, error = false) {
+      pdfEditorResult.innerHTML = `${icon(error ? 'error' : 'check_circle')}<span></span>`;
+      pdfEditorResult.querySelector('span:last-child').textContent = message;
+      pdfEditorResult.className = `result-banner visible${error ? ' error' : ''}`;
+    }
+    function parsePreviewPageSelection(value, pageCount) {
+      if (value.trim().toLowerCase() === 'all') return new Set(Array.from({ length: pageCount }, (_, index) => index + 1));
+      const selected = new Set();
+      for (const part of value.split(',')) {
+        const trimmed = part.trim();
+        if (/^\d+$/.test(trimmed)) selected.add(Number(trimmed));
+        else {
+          const range = /^(\d+)\s*-\s*(\d+)$/.exec(trimmed);
+          if (range) for (let page = Number(range[1]); page <= Number(range[2]); page++) selected.add(page);
+        }
+      }
+      return selected;
+    }
+    function syncPdfEditorOrder() {
+      document.querySelector('#pdf-editor-order').value = pdfEditorPages.map((page) => page.pageNumber).join(',');
+    }
+    function getPdfEditorSplitRanges() {
+      return [...document.querySelectorAll('.pdf-range-input')].map((input) => input.value.trim()).filter(Boolean);
+    }
+    function getPdfEditorRangeGroups() {
+      return getPdfEditorSplitRanges().map((value, groupIndex) => {
+        const pages = new Set();
+        for (const part of value.split(',')) {
+          const trimmed = part.trim();
+          if (/^\d+$/.test(trimmed)) pages.add(Number(trimmed));
+          else {
+            const match = /^(\d+)\s*-\s*(\d+)$/.exec(trimmed);
+            if (match) for (let page = Number(match[1]); page <= Number(match[2]); page++) pages.add(page);
+          }
+        }
+        return { groupIndex, pages };
+      });
+    }
+    function renderPdfEditorPageCards() {
+      const grid = document.querySelector('#pdf-editor-previews');
+      const board = document.querySelector('#pdf-editor-preview-board');
+      const action = pdfEditorAction.value;
+      const canDrag = action === 'merge' || action === 'reorder';
+      const angle = Number(document.querySelector('#pdf-editor-angle').value || 0);
+      const selectedRotationPages = parsePreviewPageSelection(document.querySelector('#pdf-editor-rotate-pages').value || 'all', pdfEditorPages.length);
+      const rangeGroups = getPdfEditorRangeGroups();
+      const visiblePages = action === 'merge'
+        ? [...new Set(pdfEditorPages.map((page) => page.fileIndex))].map((fileIndex) => pdfEditorPages.find((page) => page.fileIndex === fileIndex))
+        : pdfEditorPages;
+      grid.replaceChildren();
+      board.hidden = pdfEditorPages.length === 0;
+      for (const [index, pageInfo] of visiblePages.entries()) {
+        const card = document.createElement('article');
+        card.className = `pdf-page-card${action === 'merge' ? ' pdf-document-card' : ''}`;
+        card.draggable = canDrag;
+        card.dataset.pageKey = action === 'merge' ? `doc:${pageInfo.fileIndex}` : `${pageInfo.fileIndex}:${pageInfo.pageNumber}`;
+        const removalKey = `${pageInfo.fileIndex}:${pageInfo.pageNumber}`;
+        if (action === 'remove' && pdfRemovedPages.has(removalKey)) card.classList.add('page-removed');
+        if (action === 'split' && pageInfo.fileIndex === 0) {
+          const group = rangeGroups.find((range) => range.pages.has(pageInfo.pageNumber));
+          if (group) card.classList.add(['range-a', 'range-b', 'range-c', 'range-d'][group.groupIndex % 4]);
+        }
+        const frame = document.createElement('div');
+        frame.className = 'pdf-page-frame';
+        const image = document.createElement('img');
+        image.src = pageInfo.thumbnail;
+        image.alt = `Página ${pageInfo.pageNumber} de ${pageInfo.fileName}`;
+        if (action === 'rotate' && selectedRotationPages.has(pageInfo.pageNumber)) image.style.transform = `rotate(${angle}deg)`;
+        frame.append(image);
+        const meta = document.createElement('div');
+        meta.className = 'pdf-page-meta';
+        const title = document.createElement('strong');
+        title.textContent = pageInfo.fileName;
+        const number = document.createElement('span');
+        number.textContent = action === 'merge'
+          ? `${pdfEditorFilePageCounts[pageInfo.fileIndex] || 1} ${pdfEditorFilePageCounts[pageInfo.fileIndex] === 1 ? 'página' : 'páginas'} · posición ${index + 1}`
+          : `Hoja ${pageInfo.pageNumber} · orden ${index + 1}`;
+        meta.append(title, number);
+        card.append(frame, meta);
+        card.addEventListener('click', () => {
+          if (action !== 'remove') return;
+          if (pdfRemovedPages.has(removalKey)) pdfRemovedPages.delete(removalKey);
+          else pdfRemovedPages.add(removalKey);
+          document.querySelector('#pdf-editor-remove-status').textContent = `${pdfRemovedPages.size} ${pdfRemovedPages.size === 1 ? 'página marcada' : 'páginas marcadas'} para eliminar.`;
+          renderPdfEditorPageCards();
+        });
+        card.addEventListener('dragstart', (event) => {
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', card.dataset.pageKey);
+          card.classList.add('dragging');
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          grid.querySelectorAll('.drop-target').forEach((item) => item.classList.remove('drop-target'));
+        });
+        card.addEventListener('dragover', (event) => {
+          if (!canDrag) return;
+          event.preventDefault();
+          card.classList.add('drop-target');
+        });
+        card.addEventListener('dragleave', () => card.classList.remove('drop-target'));
+        card.addEventListener('drop', (event) => {
+          if (!canDrag) return;
+          event.preventDefault();
+          const fromKey = event.dataTransfer.getData('text/plain');
+          const fromIndex = visiblePages.findIndex((item) => action === 'merge' ? `doc:${item.fileIndex}` === fromKey : `${item.fileIndex}:${item.pageNumber}` === fromKey);
+          const toIndex = visiblePages.findIndex((item) => action === 'merge' ? `doc:${item.fileIndex}` === card.dataset.pageKey : `${item.fileIndex}:${item.pageNumber}` === card.dataset.pageKey);
+          if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return;
+          const movedKey = visiblePages[fromIndex];
+          if (action === 'merge') {
+            const documentOrder = visiblePages.map((page) => page.fileIndex);
+            const [movedDocument] = documentOrder.splice(fromIndex, 1);
+            documentOrder.splice(toIndex, 0, movedDocument);
+            pdfEditorPages = documentOrder.flatMap((fileIndex) => pdfEditorPages.filter((page) => page.fileIndex === fileIndex));
+          } else {
+            const pageFromIndex = pdfEditorPages.findIndex((page) => page.fileIndex === movedKey.fileIndex && page.pageNumber === movedKey.pageNumber);
+            const pageToIndex = pdfEditorPages.findIndex((page) => page.fileIndex === pageInfo.fileIndex && page.pageNumber === pageInfo.pageNumber);
+            const [movedPage] = pdfEditorPages.splice(pageFromIndex, 1);
+            pdfEditorPages.splice(pageToIndex, 0, movedPage);
+          }
+          renderPdfEditorPageCards();
+          syncPdfEditorOrder();
+          document.querySelector('#pdf-editor-preview-status').textContent = 'Orden actualizado. Se usará al unir o reordenar.';
+        });
+        grid.append(card);
+      }
+      syncPdfEditorOrder();
+    }
+    async function loadPdfEditorPreviews() {
+      const requestId = ++pdfPreviewRequest;
+      const board = document.querySelector('#pdf-editor-preview-board');
+      const status = document.querySelector('#pdf-editor-preview-status');
+      const grid = document.querySelector('#pdf-editor-previews');
+      pdfEditorPages = [];
+      pdfEditorFilePageCounts = [];
+      grid.replaceChildren();
+      board.hidden = pdfEditorFiles.length === 0;
+      if (!pdfEditorFiles.length) { status.textContent = ''; return; }
+      if (!window.pdfjsLib) {
+        status.textContent = 'No se pudo cargar pdf.js. Comprueba tu conexión para mostrar miniaturas.';
+        return;
+      }
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      status.textContent = 'Leyendo páginas PDF…';
+      try {
+        for (const [fileIndex, file] of pdfEditorFiles.entries()) {
+          if (requestId !== pdfPreviewRequest) return;
+          const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()), password: document.querySelector('#pdf-editor-password').value || undefined });
+          const sourcePdf = await loadingTask.promise;
+          pdfEditorFilePageCounts[fileIndex] = sourcePdf.numPages;
+          for (let pageNumber = 1; pageNumber <= sourcePdf.numPages; pageNumber++) {
+            if (requestId !== pdfPreviewRequest) { await sourcePdf.destroy(); return; }
+            status.textContent = `Renderizando ${pdfEditorPages.length + 1} de las páginas seleccionadas…`;
+            const page = await sourcePdf.getPage(pageNumber);
+            const naturalViewport = page.getViewport({ scale: 1 });
+            const scale = Math.min(1, 144 / naturalViewport.width, 190 / naturalViewport.height);
+            const viewport = page.getViewport({ scale });
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+            pdfEditorPages.push({ fileIndex, fileName: file.name, pageNumber, thumbnail: canvas.toDataURL('image/jpeg', .72) });
+            renderPdfEditorPageCards();
+            canvas.width = 0;
+            canvas.height = 0;
+          }
+          await sourcePdf.destroy();
+        }
+        if (requestId === pdfPreviewRequest) {
+          const action = pdfEditorAction.value;
+          status.textContent = action === 'merge' || action === 'reorder'
+            ? `${pdfEditorPages.length} miniaturas listas. Arrastra las hojas para cambiar el orden.`
+            : action === 'rotate'
+              ? `${pdfEditorPages.length} miniaturas listas. Ajusta las páginas y el giro para ver una vista previa.`
+              : `${pdfEditorPages.length} miniaturas listas.`;
+        }
+      } catch (error) {
+        if (requestId !== pdfPreviewRequest) return;
+        status.textContent = error.name === 'PasswordException' ? 'Este PDF necesita su contraseña para mostrar las miniaturas.' : 'No se pudieron generar las miniaturas. Comprueba que el archivo sea válido.';
+      }
+    }
+    function updatePdfEditorForm() {
+      const action = pdfEditorAction.value;
+      const mergeMode = action === 'merge';
+      if (!mergeMode && pdfEditorFiles.length > 1) pdfEditorFiles = pdfEditorFiles.slice(0, 1);
+      pdfEditorInput.multiple = mergeMode;
+      document.querySelectorAll('[data-pdf-mode]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.pdfMode === action);
+        button.setAttribute('aria-pressed', String(button.dataset.pdfMode === action));
+      });
+      document.querySelectorAll('.pdf-editor-option').forEach((option) => { option.hidden = option.dataset.pdfOption !== action; });
+      const canDragPages = mergeMode || action === 'reorder';
+      document.querySelector('#pdf-editor-preview-instruction').textContent = canDragPages ? 'Arrastra para reordenar' : action === 'rotate' ? 'Vista previa del giro' : 'Miniaturas de las páginas';
+      document.querySelector('#pdf-editor-order-note').textContent = mergeMode ? 'El orden visual de las páginas será el orden del PDF unido.' : action === 'reorder' ? 'Arrastra todas las páginas para definir el orden final.' : action === 'rotate' ? 'La previsualización refleja el giro seleccionado; el resultado se aplicará al descargar.' : 'Previsualización real de las páginas del documento.';
+      document.querySelector('#pdf-editor-upload-title').textContent = mergeMode ? 'Selecciona varios PDF' : 'Selecciona un PDF';
+      document.querySelector('#pdf-editor-upload-note').textContent = mergeMode ? 'El orden de selección será el orden de unión.' : 'Procesamiento local en el servidor CAVIVI.';
+      document.querySelector('#pdf-editor-ranges-list').hidden = document.querySelector('#pdf-editor-split-all').checked;
+      document.querySelector('#pdf-editor-add-range').hidden = document.querySelector('#pdf-editor-split-all').checked;
+      document.querySelector('#pdf-editor-remove-status').textContent = `${pdfRemovedPages.size} ${pdfRemovedPages.size === 1 ? 'página marcada' : 'páginas marcadas'} para eliminar.`;
+      const fileRow = document.querySelector('#pdf-editor-file-row');
+      fileRow.classList.toggle('visible', pdfEditorFiles.length > 0);
+      if (pdfEditorFiles.length) {
+        document.querySelector('#pdf-editor-file-name').textContent = mergeMode ? `${pdfEditorFiles.length} PDF seleccionados` : pdfEditorFiles[0].name;
+        document.querySelector('#pdf-editor-file-size').textContent = pdfEditorFiles.map((file) => `${file.name} · ${formatBytes(file.size)}`).join('  |  ');
+      }
+      pdfEditorSubmit.disabled = pdfEditorFiles.length === 0 || (mergeMode && pdfEditorFiles.length < 2);
+      const actionLabels = { merge: 'Unir PDF', split: 'Dividir PDF', compress: 'Comprimir PDF', reorder: 'Reordenar páginas', number: 'Añadir números', rotate: 'Rotar páginas', remove: 'Eliminar páginas', protect: 'Proteger PDF', unprotect: 'Quitar contraseña' };
+      pdfEditorSubmit.querySelector('span:first-child').textContent = actionLabels[action] || 'Procesar PDF';
+      pdfEditorResult.className = 'result-banner';
+      renderPdfEditorPageCards();
+    }
+    function selectPdfEditorFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (!files.length) return;
+      const invalidFile = files.find((file) => !file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf');
+      if (invalidFile) {
+        showPdfEditorResult(`${invalidFile.name} no es un PDF válido.`, true);
+        return;
+      }
+      pdfEditorFiles = pdfEditorAction.value === 'merge' ? files : files.slice(0, 1);
+      pdfRemovedPages.clear();
+      updatePdfEditorForm();
+      if (pdfEditorAction.value === 'merge' && pdfEditorFiles.length < 2) showPdfEditorResult('Selecciona al menos dos PDF para unir.', true);
+      loadPdfEditorPreviews();
+    }
+    pdfEditorAction.addEventListener('change', () => {
+      updatePdfEditorForm();
+      if (pdfEditorFiles.length) loadPdfEditorPreviews();
+    });
+    document.querySelectorAll('[data-pdf-mode]').forEach((button) => button.addEventListener('click', () => {
+      pdfEditorAction.value = button.dataset.pdfMode;
+      pdfEditorAction.dispatchEvent(new Event('change', { bubbles: true }));
+    }));
+    document.querySelector('#pdf-editor-split-all').addEventListener('change', updatePdfEditorForm);
+    document.querySelector('#pdf-editor-angle').addEventListener('change', renderPdfEditorPageCards);
+    document.querySelector('#pdf-editor-rotate-pages').addEventListener('input', renderPdfEditorPageCards);
+    document.querySelectorAll('#pdf-position-grid [data-position]').forEach((button) => button.addEventListener('click', () => {
+      document.querySelector('#pdf-editor-position').value = button.dataset.position;
+      document.querySelectorAll('#pdf-position-grid [data-position]').forEach((item) => item.classList.toggle('selected', item === button));
+    }));
+    document.querySelector('#pdf-editor-add-range').addEventListener('click', () => {
+      const row = document.createElement('div');
+      row.className = 'pdf-range-row';
+      const input = document.createElement('input');
+      input.className = 'qr-input pdf-range-input';
+      input.type = 'text';
+      input.placeholder = 'Ej.: 5-10';
+      input.setAttribute('aria-label', 'Rango de páginas');
+      const remove = document.createElement('button');
+      remove.className = 'icon-button pdf-range-remove';
+      remove.type = 'button';
+      remove.setAttribute('aria-label', 'Eliminar rango');
+      remove.innerHTML = icon('remove');
+      row.append(input, remove);
+      document.querySelector('#pdf-editor-ranges-list').append(row);
+    });
+    document.querySelector('#pdf-editor-ranges-list').addEventListener('click', (event) => {
+      const remove = event.target.closest('.pdf-range-remove');
+      if (!remove) return;
+      const rows = document.querySelectorAll('.pdf-range-row');
+      if (rows.length <= 1) { rows[0].querySelector('input').value = ''; return; }
+      remove.closest('.pdf-range-row').remove();
+      renderPdfEditorPageCards();
+    });
+    document.querySelector('#pdf-editor-ranges-list').addEventListener('input', renderPdfEditorPageCards);
+    document.querySelector('#pdf-sort-name').addEventListener('click', () => {
+      const order = [...new Set(pdfEditorPages.map((page) => page.fileIndex))].sort((left, right) => pdfEditorFiles[left].name.localeCompare(pdfEditorFiles[right].name, 'es', { sensitivity: 'base' }));
+      pdfEditorPages = order.flatMap((fileIndex) => pdfEditorPages.filter((page) => page.fileIndex === fileIndex));
+      renderPdfEditorPageCards();
+      document.querySelector('#pdf-editor-preview-status').textContent = 'Documentos ordenados alfabéticamente.';
+    });
+    document.querySelector('#pdf-editor-browse').addEventListener('click', () => pdfEditorInput.click());
+    pdfEditorInput.addEventListener('change', () => {
+      selectPdfEditorFiles(pdfEditorInput.files);
+      pdfEditorInput.value = '';
+    });
+    document.querySelector('#pdf-editor-remove').addEventListener('click', () => {
+      pdfEditorFiles = [];
+      pdfEditorPages = [];
+      pdfRemovedPages.clear();
+      pdfPreviewRequest++;
+      updatePdfEditorForm();
+      document.querySelector('#pdf-editor-preview-status').textContent = '';
+    });
+    for (const eventName of ['dragenter', 'dragover']) pdfEditorDropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      pdfEditorDropzone.classList.add('dragover');
+    });
+    for (const eventName of ['dragleave', 'drop']) pdfEditorDropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      pdfEditorDropzone.classList.remove('dragover');
+    });
+    pdfEditorDropzone.addEventListener('drop', (event) => selectPdfEditorFiles(event.dataTransfer.files));
+    pdfEditorForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const action = pdfEditorAction.value;
+      if (!pdfEditorFiles.length || (action === 'merge' && pdfEditorFiles.length < 2)) {
+        showPdfEditorResult(action === 'merge' ? 'Selecciona al menos dos PDF.' : 'Selecciona un PDF antes de continuar.', true);
+        return;
+      }
+      if (action === 'reorder' && pdfEditorPages.length === 0) {
+        showPdfEditorResult('Indica el nuevo orden de todas las páginas.', true);
+        return;
+      }
+      if (action === 'split' && !document.querySelector('#pdf-editor-split-all').checked && getPdfEditorSplitRanges().length === 0) {
+        showPdfEditorResult('Añade al menos un rango de páginas.', true);
+        return;
+      }
+      if (action === 'remove' && pdfRemovedPages.size === 0) {
+        showPdfEditorResult('Marca al menos una página con una X antes de continuar.', true);
+        return;
+      }
+      if (action === 'unprotect' && !document.querySelector('#pdf-editor-password').value) {
+        showPdfEditorResult('Escribe la contraseña actual del PDF.', true);
+        return;
+      }
+      if (action === 'protect' && document.querySelector('#pdf-editor-new-password').value.length < 4) {
+        showPdfEditorResult('La nueva contraseña debe tener al menos 4 caracteres.', true);
+        return;
+      }
+
+      const originalLabel = pdfEditorSubmit.querySelector('span:first-child').textContent;
+      const body = new FormData();
+      if (action === 'merge') {
+        pdfEditorFiles.forEach((file) => body.append('archivos', file, file.name));
+        if (pdfEditorPages.length) body.append('page_order', JSON.stringify(pdfEditorPages.map((page) => ({ fileIndex: page.fileIndex, pageNumber: page.pageNumber }))));
+      } else {
+        body.append('archivo_pdf', pdfEditorFiles[0], pdfEditorFiles[0].name);
+      }
+      const sourcePassword = document.querySelector('#pdf-editor-password').value;
+      if (sourcePassword) body.append('password', sourcePassword);
+      if (action === 'reorder') body.append('orden', document.querySelector('#pdf-editor-order').value.trim());
+      if (action === 'number') {
+        body.append('position', document.querySelector('#pdf-editor-position').value);
+        body.append('start', document.querySelector('#pdf-editor-start').value || '1');
+        body.append('format', document.querySelector('#pdf-editor-number-format').value.trim());
+        body.append('font', document.querySelector('#pdf-editor-font').value);
+        body.append('size', document.querySelector('#pdf-editor-font-size').value);
+        body.append('color', document.querySelector('#pdf-editor-font-color').value);
+      }
+      if (action === 'split') {
+        const splitAll = document.querySelector('#pdf-editor-split-all').checked;
+        body.append('mode', splitAll ? 'all' : 'range');
+        body.append('pages', splitAll ? '' : getPdfEditorSplitRanges().join(','));
+      }
+      if (action === 'rotate') {
+        body.append('pages', document.querySelector('#pdf-editor-rotate-pages').value.trim() || 'all');
+        body.append('angle', document.querySelector('#pdf-editor-angle').value);
+      }
+      if (action === 'remove') body.append('pages', [...pdfRemovedPages].map((key) => Number(key.split(':')[1])).sort((a, b) => a - b).join(','));
+      if (action === 'protect') {
+        body.append('new_password', document.querySelector('#pdf-editor-new-password').value);
+        body.append('owner_password', document.querySelector('#pdf-editor-owner-password').value);
+      }
+
+      pdfEditorSubmit.disabled = true;
+      pdfEditorSubmit.querySelector('span:first-child').textContent = 'Procesando PDF…';
+      showPdfEditorResult('Procesando en CAVIVI…');
+      try {
+        const response = await fetch(pdfEditorEndpoints[action], { method: 'POST', body });
+        if (!response.ok) {
+          let message = 'No se pudo completar la operación.';
+          try { message = (await response.json()).error || message; } catch {}
+          throw new Error(message);
+        }
+        const blob = await response.blob();
+        const disposition = response.headers.get('Content-Disposition') || '';
+        const filenameMatch = disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
+        const filename = filenameMatch ? decodeURIComponent(filenameMatch[1] || filenameMatch[2]) : 'pdf_editado.pdf';
+        downloadBlob(blob, filename);
+        addHistory(filename, action === 'merge' ? 'PDF unidos' : 'PDF editado');
+        showPdfEditorResult(`Operación completada. Descargando ${filename}.`);
+      } catch (error) {
+        showPdfEditorResult(error.message || 'No se pudo conectar con CAVIVI.', true);
+      } finally {
+        pdfEditorSubmit.disabled = pdfEditorFiles.length === 0 || (pdfEditorAction.value === 'merge' && pdfEditorFiles.length < 2);
+        pdfEditorSubmit.querySelector('span:first-child').textContent = originalLabel;
+      }
+    });
+    updatePdfEditorForm();
+
+    const qrInput = document.querySelector('#qr-content');
+    const qrPaper = document.querySelector('#qr-paper');
+    const qrDownload = document.querySelector('#download-qr');
+    const qrImageInput = document.querySelector('#qr-image-input');
+    const qrLogoPreview = document.querySelector('#qr-logo-preview');
+    document.querySelector('#qr-image-button').addEventListener('click', () => qrImageInput.click());
+    qrImageInput.addEventListener('change', () => {
+      const file = qrImageInput.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { showToast('Elige un archivo de imagen válido.'); return; }
+      qrLogoFile = file;
+      qrLogoPreview.src = URL.createObjectURL(file);
+      qrLogoPreview.hidden = false;
+      document.querySelector('#remove-qr-image').hidden = false;
+      document.querySelector('#qr-image-button').innerHTML = `${icon('image')}Cambiar`;
+    });
+    document.querySelector('#remove-qr-image').addEventListener('click', () => {
+      if (qrLogoPreview.src.startsWith('blob:')) URL.revokeObjectURL(qrLogoPreview.src);
+      qrLogoFile = null; qrLogoPreview.removeAttribute('src'); qrLogoPreview.hidden = true;
+      document.querySelector('#remove-qr-image').hidden = true;
+      document.querySelector('#qr-image-button').innerHTML = `${icon('image')}Añadir`;
+      qrImageInput.value = '';
+    });
+    document.querySelector('#generate-qr').addEventListener('click', async () => {
+      const value = qrInput.value.trim();
+      if (!value) { showToast('Escribe un texto o una dirección web.'); qrInput.focus(); return; }
+      if (!window.QRCode) { showToast('No se pudo cargar el generador QR. Comprueba tu conexión.'); return; }
+      qrPaper.innerHTML = '';
+      const color = document.querySelector('#qr-color').value;
+      try {
+        qrCode = new QRCode(qrPaper, { text: value, width: 512, height: 512, colorDark: color, colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+        let sourceCanvas = qrPaper.querySelector('canvas');
+        if (!sourceCanvas) {
+          const generatedImage = qrPaper.querySelector('img');
+          if (!generatedImage) throw new Error('No se pudo crear el código QR.');
+          if (!generatedImage.complete) await new Promise((resolve, reject) => { generatedImage.onload = resolve; generatedImage.onerror = reject; });
+          sourceCanvas = document.createElement('canvas'); sourceCanvas.width = 512; sourceCanvas.height = 512;
+          sourceCanvas.getContext('2d').drawImage(generatedImage, 0, 0, 512, 512);
+        }
+        const finalCanvas = document.createElement('canvas'); finalCanvas.width = 1024; finalCanvas.height = 1024;
+        const context = finalCanvas.getContext('2d');
+        context.imageSmoothingEnabled = false;
+        context.drawImage(sourceCanvas, 0, 0, 1024, 1024);
+        if (qrLogoFile) {
+          const logo = await loadImage(await readAsDataURL(qrLogoFile));
+          const logoSize = 160, padding = 18, center = 512;
+          context.imageSmoothingEnabled = true;
+          context.fillStyle = '#fff';
+          context.beginPath(); context.roundRect(center - logoSize / 2 - padding, center - logoSize / 2 - padding, logoSize + padding * 2, logoSize + padding * 2, 24); context.fill();
+          context.save(); context.beginPath(); context.roundRect(center - logoSize / 2, center - logoSize / 2, logoSize, logoSize, 14); context.clip();
+          const scale = Math.max(logoSize / logo.width, logoSize / logo.height);
+          const width = logo.width * scale, height = logo.height * scale;
+          context.drawImage(logo, center - width / 2, center - height / 2, width, height); context.restore();
+        }
+        qrPaper.innerHTML = ''; qrPaper.append(finalCanvas);
+        qrDownload.disabled = false;
+        qrDownload.dataset.filename = `CAVIVI-qr-${new Date().toISOString().slice(0, 10)}.png`;
+      } catch (error) {
+        qrPaper.innerHTML = `<div class="qr-placeholder"><span class="material-symbols-rounded">error</span><span>${escapeHtml(error.message || 'No se pudo generar el código.')}</span></div>`;
+        qrDownload.disabled = true;
+      }
+    });
+    qrDownload.addEventListener('click', () => {
+      if (!qrCode) return;
+      const canvas = qrPaper.querySelector('canvas');
+      const source = canvas?.toDataURL('image/png');
+      if (source) { const link = document.createElement('a'); link.href = source; link.download = qrDownload.dataset.filename; link.click(); }
+    });
+
+    const textArea = document.querySelector('#text-content');
+    function updateTextStats() {
+      const text = textArea.value;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      document.querySelector('#word-count').textContent = `${words} ${words === 1 ? 'palabra' : 'palabras'}`;
+      document.querySelector('#stat-words').textContent = words.toLocaleString('es-ES');
+      document.querySelector('#stat-chars').textContent = text.length.toLocaleString('es-ES');
+      document.querySelector('#stat-no-spaces').textContent = text.replace(/\s/g, '').length.toLocaleString('es-ES');
+      document.querySelector('#stat-lines').textContent = text ? text.split(/\r\n|\r|\n/).length.toLocaleString('es-ES') : '0';
+    }
+    textArea.addEventListener('input', updateTextStats);
+    const summaryResult = document.querySelector('#summary-result');
+    function splitSentences(text) {
+      return (text.match(/[^.!?]+[.!?]+|[^.!?]+$/gu) || []).map((sentence) => sentence.trim()).filter(Boolean);
+    }
+    function summarizeText(text) {
+      const sentences = splitSentences(text);
+      if (sentences.length <= 2) return sentences.join(' ');
+      const stopWords = new Set('a al algo algunas algunos ante antes como con contra cual cuando de del desde donde durante e el ella ellas ellos en entre era erais eran eras eres es esa esas ese eso esos esta estaba estaban estado estamos estan estar estas este esto estos fue fuera fueron ha habia han hasta hay la las le les lo los mas me mi mis mucha muchas mucho muchos muy ni no nos o os otra otras otro otros para pero poco por porque que quien se ser si sin sobre son su sus te tiene tienen todo todos tras tu tus un una unas uno unos y ya'.split(' '));
+      const tokenize = (sentence) => sentence.toLocaleLowerCase('es').match(/[\p{L}\p{N}]+/gu) || [];
+      const frequencies = new Map();
+      for (const word of tokenize(text)) if (word.length > 2 && !stopWords.has(word)) frequencies.set(word, (frequencies.get(word) || 0) + 1);
+      const ranked = sentences.map((sentence, index) => {
+        const words = tokenize(sentence).filter((word) => word.length > 2 && !stopWords.has(word));
+        const frequencyScore = words.reduce((sum, word) => sum + Math.min(frequencies.get(word) || 0, 4), 0);
+        const leadBonus = index < 2 ? 0.3 : 0;
+        return { sentence, index, score: frequencyScore / Math.sqrt(Math.max(words.length, 1)) + leadBonus };
+      });
+      const count = Math.min(5, Math.max(2, Math.ceil(sentences.length * 0.3)));
+      return ranked.sort((a, b) => b.score - a.score).slice(0, count).sort((a, b) => a.index - b.index).map((item) => item.sentence).join(' ');
+    }
+    document.querySelector('#summarize-text').addEventListener('click', () => {
+      const text = textArea.value.trim();
+      const status = document.querySelector('#review-status');
+      if (!text) { status.textContent = 'Escribe o pega un texto primero.'; status.className = 'review-status error'; return; }
+      const summary = summarizeText(text);
+      document.querySelector('#summary-text').textContent = summary || text;
+      summaryResult.hidden = false;
+      status.textContent = 'Resumen extractivo creado localmente.';
+      status.className = 'review-status';
+    });
+    document.querySelector('#copy-summary').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(document.querySelector('#summary-text').textContent);
+      showToast('Resumen copiado.');
+    });
+    textArea.addEventListener('input', () => { summaryResult.hidden = true; });
+    async function reviewText(mode) {
+      const text = textArea.value;
+      const status = document.querySelector('#review-status');
+      if (!text.trim()) { status.textContent = 'Escribe o pega un texto primero.'; status.className = 'review-status error'; return; }
+      if (text.length > 20000) { status.textContent = 'LanguageTool admite hasta 20.000 caracteres por revisión.'; status.className = 'review-status error'; return; }
+      status.textContent = 'Revisando texto…'; status.className = 'review-status';
+      try {
+        const response = await fetch('https://api.languagetool.org/v2/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: new URLSearchParams({ text, language: 'es', level: mode === 'improve' ? 'picky' : 'default' })
+        });
+        if (!response.ok) throw new Error('LanguageTool no está disponible ahora mismo.');
+        const result = await response.json();
+        const matches = result.matches.filter((match) => match.replacements?.length && (mode === 'improve' || ['misspelling', 'grammar', 'typographical', 'inconsistency', 'uncategorized'].includes(match.rule?.issueType)));
+        let revised = text;
+        let applied = 0;
+        for (const match of matches.sort((a, b) => b.offset - a.offset)) {
+          revised = revised.slice(0, match.offset) + match.replacements[0].value + revised.slice(match.offset + match.length);
+          applied++;
+        }
+        textArea.value = revised;
+        textArea.dispatchEvent(new Event('input', { bubbles: true }));
+        status.textContent = applied ? `${applied} ${applied === 1 ? 'corrección aplicada' : 'correcciones aplicadas'}.` : 'No se encontraron cambios.';
+        status.className = 'review-status';
+      } catch (error) {
+        status.textContent = error.message || 'No se pudo conectar con LanguageTool.';
+        status.className = 'review-status error';
+      }
+    }
+    document.querySelector('#correct-spelling').addEventListener('click', () => reviewText('spell'));
+    document.querySelector('#improve-writing').addEventListener('click', () => reviewText('improve'));
+
+    const aiText = document.querySelector('#ai-text');
+    const aiComparison = document.querySelector('#ai-comparison');
+    const aiCliches = [
+      { phrase: 'es importante destacar', replacement: 'conviene recordar' },
+      { phrase: 'es importante señalar', replacement: 'conviene recordar' },
+      { phrase: 'es de vital importancia', replacement: 'es muy importante' },
+      { phrase: 'en el panorama actual', replacement: 'hoy en día' },
+      { phrase: 'cabe mencionar', replacement: 'también conviene mencionar' },
+      { phrase: 'cabe destacar', replacement: 'vale la pena mencionar' },
+      { phrase: 'por consiguiente', replacement: 'así que' },
+      { phrase: 'en primer lugar', replacement: 'para empezar' },
+      { phrase: 'en segundo lugar', replacement: 'después' },
+      { phrase: 'por otro lado', replacement: 'además' },
+      { phrase: 'por un lado', replacement: 'por una parte' },
+      { phrase: 'en conclusión', replacement: 'en pocas palabras' },
+      { phrase: 'en definitiva', replacement: 'al final' },
+      { phrase: 'en resumen', replacement: 'en pocas palabras' },
+      { phrase: 'es fundamental', replacement: 'es clave' },
+      { phrase: 'fundamentales', replacement: 'claves' },
+      { phrase: 'fundamental', replacement: 'clave' },
+      { phrase: 'vitales', replacement: 'importantes' },
+      { phrase: 'vital', replacement: 'importante' },
+      { phrase: 'asimismo', replacement: 'también' },
+      { phrase: 'no obstante', replacement: 'pero' },
+      { phrase: 'sin embargo', replacement: 'pero' },
+      { phrase: 'sino también', replacement: 'también' },
+      { phrase: 'no solo', replacement: 'no únicamente' },
+      { phrase: 'llevar a cabo', replacement: 'hacer' }
+    ];
+    const aiClicheAlternatives = aiCliches.map((item) => item.phrase).sort((a, b) => b.length - a.length).map((phrase) => phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    function findAiCliches(text) {
+      const matcher = new RegExp(`(^|[^\\p{L}\\p{N}_])(${aiClicheAlternatives.join('|')})(?=$|[^\\p{L}\\p{N}_])`, 'giu');
+      const matches = [];
+      for (const match of text.matchAll(matcher)) matches.push({ index: match.index + match[1].length, phrase: match[2] });
+      return matches;
+    }
+    function renderAiHighlight(text, matches) {
+      let output = '';
+      let cursor = 0;
+      for (const match of matches) {
+        output += escapeHtml(text.slice(cursor, match.index));
+        output += `<span class="ai-highlight bg-sky-200 text-slate-900 rounded px-1 font-medium">${escapeHtml(match.phrase)}</span>`;
+        cursor = match.index + match.phrase.length;
+      }
+      return output + escapeHtml(text.slice(cursor));
+    }
+    function updateAiAnalysis(text) {
+      const words = text.match(/[\p{L}\p{N}]+/gu) || [];
+      const sentences = splitSentences(text);
+      const matches = findAiCliches(text);
+      const verdict = document.querySelector('#ai-verdict');
+      document.querySelector('#ai-original-highlight').innerHTML = renderAiHighlight(text, matches);
+      document.querySelector('#ai-humanized-output').textContent = 'Pulsa «Humanizar texto» para generar una versión.';
+      document.querySelector('#copy-humanized').disabled = true;
+      aiComparison.hidden = false;
+      aiComparison.classList.remove('hidden');
+      document.querySelector('#ai-cliches').textContent = String(matches.length);
+      if (words.length < 30 || sentences.length < 3) {
+        verdict.textContent = 'Añade al menos 30 palabras y 3 frases para estimar el indicador. Los clichés encontrados ya aparecen resaltados.';
+        document.querySelector('#ai-score').textContent = '--%';
+        document.querySelector('#ai-meter').style.width = '0%';
+        document.querySelector('#ai-variation').textContent = '--';
+        return { matches, score: null };
+      }
+      const lengths = sentences.map((sentence) => (sentence.match(/[\p{L}\p{N}]+/gu) || []).length);
+      const mean = lengths.reduce((sum, length) => sum + length, 0) / lengths.length;
+      const deviation = Math.sqrt(lengths.reduce((sum, length) => sum + (length - mean) ** 2, 0) / lengths.length);
+      const coefficient = mean ? deviation / mean : 0;
+      const regularity = 1 - Math.min(coefficient, 0.8) / 0.8;
+      const clicheSignal = Math.min(matches.length / Math.max(words.length / 40, 1), 1) * 45;
+      const score = Math.max(5, Math.min(95, Math.round(10 + regularity * 40 + clicheSignal)));
+      document.querySelector('#ai-score').textContent = `${score}%`;
+      document.querySelector('#ai-meter').style.width = `${score}%`;
+      document.querySelector('#ai-variation').textContent = coefficient < 0.25 ? 'Baja' : coefficient < 0.55 ? 'Media' : 'Alta';
+      verdict.textContent = `${matches.length} ${matches.length === 1 ? 'cliché' : 'clichés'} detectados; variación de frases ${coefficient < 0.25 ? 'baja' : coefficient < 0.55 ? 'media' : 'alta'}. Indicador heurístico, no prueba de autoría.`;
+      return { matches, score };
+    }
+    document.querySelector('#detect-ai').addEventListener('click', () => {
+      if (!aiText.value.trim()) {
+        document.querySelector('#ai-verdict').textContent = 'Pega un texto para buscar patrones.';
+        return;
+      }
+      updateAiAnalysis(aiText.value);
+    });
+    function preserveInitialCase(original, replacement) {
+      if (original === original.toLocaleUpperCase('es')) return replacement.toLocaleUpperCase('es');
+      if (original[0] === original[0].toLocaleUpperCase('es')) return replacement[0].toLocaleUpperCase('es') + replacement.slice(1);
+      return replacement;
+    }
+    function capitalizeSentenceStart(text) {
+      return text[0].toLocaleUpperCase('es') + text.slice(1);
+    }
+    function varyLongSentences(text) {
+      let changed = 0;
+      const sentences = splitSentences(text).flatMap((sentence) => {
+        const wordCount = (sentence.match(/[\p{L}\p{N}]+/gu) || []).length;
+        if (wordCount < 30) return [sentence];
+        const boundary = /,\s*(pero|sin embargo|en cambio)\s+/iu.exec(sentence);
+        if (!boundary) return [sentence];
+        const conjunctionStart = boundary.index + boundary[0].indexOf(boundary[1]);
+        const first = sentence.slice(0, boundary.index).trim().replace(/[,:;]+$/, '');
+        const second = sentence.slice(conjunctionStart).trim();
+        if ((first.match(/[\p{L}\p{N}]+/gu) || []).length < 10 || (second.match(/[\p{L}\p{N}]+/gu) || []).length < 6) return [sentence];
+        changed++;
+        return [`${first}.`, capitalizeSentenceStart(second)];
+      });
+      return { text: sentences.join(' '), changed };
+    }
+    document.querySelector('#humanize-text').addEventListener('click', () => {
+      const original = aiText.value.trim();
+      if (!original) { document.querySelector('#ai-verdict').textContent = 'Pega un texto antes de humanizarlo.'; return; }
+      const analysis = updateAiAnalysis(original);
+      let humanized = original;
+      let replacementsMade = 0;
+      const orderedRules = [...aiCliches].sort((a, b) => b.phrase.length - a.phrase.length);
+      for (const rule of orderedRules) {
+        const escaped = rule.phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const matcher = new RegExp(`(^|[^\\p{L}\\p{N}_])(${escaped})(?=$|[^\\p{L}\\p{N}_])`, 'giu');
+        humanized = humanized.replace(matcher, (full, prefix, phrase) => {
+          replacementsMade++;
+          return prefix + preserveInitialCase(phrase, rule.replacement);
+        });
+      }
+      const rhythm = varyLongSentences(humanized.replace(/[ \t]{2,}/g, ' ').replace(/\s+([,.;!?])/g, '$1').trim());
+      humanized = rhythm.text;
+      document.querySelector('#ai-humanized-output').textContent = humanized;
+      document.querySelector('#copy-humanized').disabled = false;
+      document.querySelector('#ai-verdict').textContent = `${replacementsMade} ${replacementsMade === 1 ? 'cliché sustituido' : 'clichés sustituidos'}; ${rhythm.changed} ${rhythm.changed === 1 ? 'frase larga dividida' : 'frases largas divididas'}. Indicador: ${analysis.score === null ? 'texto breve para puntuar' : `${analysis.score}%`}.`;
+    });
+    async function copyHumanizedText() {
+      const value = document.querySelector('#ai-humanized-output').textContent;
+      try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(value);
+        else {
+          const temporary = document.createElement('textarea');
+          temporary.value = value; temporary.style.position = 'fixed'; temporary.style.opacity = '0';
+          document.body.append(temporary); temporary.select();
+          if (!document.execCommand('copy')) throw new Error('El navegador no permitió copiar el texto.');
+          temporary.remove();
+        }
+        showToast('Texto humanizado copiado.');
+      } catch { showToast('No se pudo copiar. Selecciona el texto manualmente.'); }
+    }
+    document.querySelector('#copy-humanized').addEventListener('click', copyHumanizedText);
+    function resetAiResults() {
+      aiComparison.hidden = true;
+      aiComparison.classList.add('hidden');
+      document.querySelector('#ai-score').textContent = '--%';
+      document.querySelector('#ai-meter').style.width = '0%';
+      document.querySelector('#ai-variation').textContent = '--';
+      document.querySelector('#ai-cliches').textContent = '--';
+      document.querySelector('#ai-verdict').textContent = 'Pega al menos 30 palabras y 3 frases para analizar patrones.';
+    }
+    aiText.addEventListener('input', resetAiResults);
+    document.querySelector('#clear-ai-text').addEventListener('click', () => {
+      aiText.value = '';
+      resetAiResults();
+    });
+    document.querySelectorAll('[data-text-action]').forEach((button) => button.addEventListener('click', async () => {
+      const action = button.dataset.textAction;
+      if (action === 'uppercase') textArea.value = textArea.value.toLocaleUpperCase('es');
+      if (action === 'lowercase') textArea.value = textArea.value.toLocaleLowerCase('es');
+      if (action === 'copy') { await navigator.clipboard.writeText(textArea.value); showToast('Texto copiado.'); }
+      if (action === 'download') downloadBlob(new Blob([textArea.value], { type: 'text/plain;charset=utf-8' }), 'texto.txt');
+      updateTextStats();
+    }));
+    document.querySelector('#export-text').addEventListener('click', async () => {
+      const text = textArea.value;
+      if (!text.trim()) { showToast('Añade texto antes de exportar.'); textArea.focus(); return; }
+      const format = document.querySelector('#text-export').value;
+      if (format === 'txt') downloadBlob(new Blob([text], { type: 'text/plain;charset=utf-8' }), 'texto.txt');
+      if (format === 'docx') downloadBlob(await createDocxBlob(text), 'texto.docx');
+      if (format === 'pptx') downloadBlob(await createPptxBlob(text), 'texto.pptx');
+      if (format === 'pdf') {
+        downloadBlob(createPdfBlob(text), 'texto.pdf');
+      }
+      showToast(`Documento ${format.toUpperCase()} exportado.`);
+    });
+
+    function updateHistory() {
+      const items = JSON.parse(localStorage.getItem('cian-history') || '[]');
+      const list = document.querySelector('#history-list');
+      document.querySelector('#recent-summary').textContent = items.length ? `${items.length} ${items.length === 1 ? 'archivo convertido' : 'archivos convertidos'}` : 'Todavía no hay conversiones';
+      if (!items.length) { list.innerHTML = '<div class="empty-history">Tu actividad aparecerá aquí después de una conversión.</div>'; return; }
+      list.innerHTML = items.map((item) => `<div class="history-row"><div class="file-type-icon">${icon('description')}</div><div class="file-info"><div class="file-name">${escapeHtml(item.name)}</div><div class="file-size">${escapeHtml(item.format)} · ${new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(item.date))}</div></div></div>`).join('');
+    }
+    document.querySelector('#clear-history').addEventListener('click', () => { localStorage.removeItem('cian-history'); updateHistory(); });
+    updateHistory();
+  </script>
+</body>
+</html>
